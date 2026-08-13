@@ -114,6 +114,15 @@ function ExportSettingsCategory(): JSX.Element {
             suffix="°"
           />
           <NumberField
+            label="Skew"
+            value={options.skewDeg}
+            onChange={(skewDeg) => update({ skewDeg })}
+            min={-60}
+            max={60}
+            step={5}
+            suffix="°"
+          />
+          <NumberField
             label="Item gap"
             value={options.itemGap}
             onChange={(itemGap) => update({ itemGap })}

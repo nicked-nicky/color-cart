@@ -1,5 +1,4 @@
 import { JSX, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
-import { animate } from 'animejs'
 import { useNavigatorSettingsStore } from '@renderer/store/navigatorSettingsStore'
 
 interface NavigatorRect {
@@ -16,31 +15,22 @@ interface NavigatorProps {
    *  percentage-based viewport rect aligned with what's actually drawn. */
   aspectRatio: number
   rect: NavigatorRect
+  /** Whether the navigator should currently be shown. Stays mounted either
+   *  way — only opacity/scale/pointer-events change — so appearing at the
+   *  zoom threshold is a cheap CSS transition instead of a fresh mount. */
+  visible: boolean
   onPan: (fractionX: number, fractionY: number) => void
 }
 
 const MIN_DIMENSION = 70
 
-function Navigator({ imageUrl, aspectRatio, rect, onPan }: NavigatorProps): JSX.Element {
+function Navigator({ imageUrl, aspectRatio, rect, visible, onPan }: NavigatorProps): JSX.Element {
   const maxDimension = useNavigatorSettingsStore((state) => state.values.size)
   const rootRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
   const width = aspectRatio >= 1 ? maxDimension : Math.max(MIN_DIMENSION, maxDimension * aspectRatio)
   const height = aspectRatio >= 1 ? Math.max(MIN_DIMENSION, maxDimension / aspectRatio) : maxDimension
-
-  // Mount-only entrance — this component unmounts/remounts every time zoom
-  // crosses the appearance threshold, so this fires exactly on each
-  // appearance, not on every rect/size update.
-  useEffect(() => {
-    if (!rootRef.current) return
-    animate(rootRef.current, {
-      opacity: [0, 1],
-      scale: [0.85, 1],
-      duration: 220,
-      ease: 'outQuad'
-    })
-  }, [])
 
   const panFromEvent = (clientX: number, clientY: number): void => {
     const node = rootRef.current
@@ -53,7 +43,7 @@ function Navigator({ imageUrl, aspectRatio, rect, onPan }: NavigatorProps): JSX.
   }
 
   const handleMouseDown = (event: ReactMouseEvent<HTMLDivElement>): void => {
-    if (event.button !== 0) return
+    if (!visible || event.button !== 0) return
     panFromEvent(event.clientX, event.clientY)
     setIsDragging(true)
   }
@@ -77,7 +67,9 @@ function Navigator({ imageUrl, aspectRatio, rect, onPan }: NavigatorProps): JSX.
     <div
       ref={rootRef}
       onMouseDown={handleMouseDown}
-      className="absolute bottom-4 right-4 z-30 cursor-pointer overflow-hidden rounded-xl border border-border-subtle opacity-0 shadow-lg backdrop-blur"
+      className={`absolute bottom-4 right-4 z-30 cursor-pointer overflow-hidden rounded-xl border border-border-subtle shadow-lg backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
+        visible ? 'scale-100 opacity-100' : 'pointer-events-none scale-90 opacity-0'
+      }`}
       style={{
         width,
         height,

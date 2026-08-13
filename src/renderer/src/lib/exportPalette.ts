@@ -25,6 +25,8 @@ export interface PaletteExportOptions {
   ovalHeight: number
   /** Rotation applied to every item, in degrees. */
   rotationDeg: number
+  /** Horizontal shear applied to every item (in its own rotated frame), in degrees. */
+  skewDeg: number
   /** Center-to-center distance between items along the fill direction. */
   itemGap: number
   /** Center-to-center distance between wrapped lines (columns or rows). */
@@ -44,6 +46,7 @@ export const DEFAULT_PALETTE_EXPORT_OPTIONS: PaletteExportOptions = {
   ovalWidth: 110,
   ovalHeight: 64,
   rotationDeg: 45,
+  skewDeg: 0,
   itemGap: 115,
   lineGap: 140,
   groupSize: 5,
@@ -163,6 +166,9 @@ export function renderPaletteCanvas(
     ctx.save()
     ctx.translate(centerX, centerY)
     ctx.rotate((opts.rotationDeg * Math.PI) / 180)
+    if (opts.skewDeg !== 0) {
+      ctx.transform(1, 0, Math.tan((opts.skewDeg * Math.PI) / 180), 1, 0, 0)
+    }
     traceShape(ctx, opts.shape, opts.ovalWidth, opts.ovalHeight)
     ctx.fillStyle = color.hex
     ctx.fill()

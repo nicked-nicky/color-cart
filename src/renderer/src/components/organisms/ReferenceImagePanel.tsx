@@ -43,6 +43,7 @@ function ReferenceImagePanel(): JSX.Element {
     zoomOptions,
     baseSize,
     navigatorRect,
+    navigatorVisible,
     handleWheel,
     handlePanMouseDown,
     setZoomPercent,
@@ -153,14 +154,13 @@ function ReferenceImagePanel(): JSX.Element {
           />
         </div>
 
-        {navigatorRect && baseSize && (
-          <Navigator
-            imageUrl={url}
-            aspectRatio={baseSize.width / baseSize.height}
-            rect={navigatorRect}
-            onPan={panToImageFraction}
-          />
-        )}
+        <Navigator
+          imageUrl={url}
+          aspectRatio={baseSize ? baseSize.width / baseSize.height : 1}
+          rect={navigatorRect ?? { left: 0, top: 0, width: 100, height: 100 }}
+          visible={navigatorVisible}
+          onPan={panToImageFraction}
+        />
 
         {loupeStyle && (
           <div

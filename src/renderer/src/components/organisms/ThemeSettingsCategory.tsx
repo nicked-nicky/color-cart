@@ -49,14 +49,14 @@ function ThemeSettingsCategory(): JSX.Element {
               aria-label="Custom accent color"
               value={customAccentColor}
               onChange={(event) => setCustomAccentColor(event.target.value)}
-              className="h-9 w-14 cursor-pointer rounded-lg border border-border bg-canvas p-1"
+              className="h-9 w-9 rounded-full border border-border shadow-inner transition-transform hover:scale-105"
             />
             <span className="text-xs text-ink-faint">{customAccentColor}</span>
           </>
         ) : (
           <>
             <div
-              className="h-9 w-14 rounded-lg border border-border"
+              className="h-9 w-9 rounded-full border border-border shadow-inner"
               style={{ backgroundColor: systemAccentColor ?? 'transparent' }}
             />
             <div className="flex flex-col items-start gap-1.5">

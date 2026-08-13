@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, type RefObject, type MouseEvent as ReactMouseEvent, type WheelEvent } from 'react'
 import { useNavigatorSettingsStore } from '@renderer/store/navigatorSettingsStore'
+import { useGeneralSettingsStore } from '@renderer/store/generalSettingsStore'
 
 const MIN_ZOOM = 0.1
 const MAX_ZOOM = 10
-const ZOOM_RATE = 0.15
 const ZOOM_PRESETS = [25, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1000]
 /** Minimum px of the image that must stay inside the viewport at all times. */
 const MIN_VISIBLE_PX = 40
+/** Cap on how much a fast flick can multiply the base zoom rate by, so an
+ *  extreme scroll spike can't send zoom flying uncontrollably. */
+const MAX_SPEED_MULTIPLIER = 4
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
@@ -54,10 +57,11 @@ interface UseZoomPanOptions {
 
 /**
  * Owns zoom/pan state for the reference image: wheel-to-zoom (anchored to
- * the cursor position so the point under it stays put), arrow-key zoom,
- * middle-mouse drag-to-pan, and the data a minimap navigator needs once
- * you're zoomed in far enough to get lost — all with pan clamped so the
- * image can't disappear off the edge of the viewport.
+ * the cursor position so the point under it stays put, and scaled by how
+ * fast you're scrolling for finer control at low speed and bigger jumps on
+ * a fast flick), arrow-key zoom, middle-mouse drag-to-pan, and the data a
+ * minimap navigator needs — all with pan clamped so the image can't
+ * disappear off the edge of the viewport.
  */
 export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions): {
   zoom: number
@@ -67,6 +71,7 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   zoomOptions: number[]
   baseSize: Size | null
   navigatorRect: NavigatorRect | null
+  navigatorVisible: boolean
   handleWheel: (event: WheelEvent<HTMLDivElement>) => void
   handlePanMouseDown: (event: ReactMouseEvent<HTMLImageElement>) => boolean
   setZoomPercent: (percent: number) => void
@@ -77,12 +82,16 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   const navigatorThresholdPercent = useNavigatorSettingsStore(
     (state) => state.values.appearThresholdPercent
   )
+  const zoomBaseRate = useGeneralSettingsStore((state) => state.values.zoomBaseRate)
+  const zoomSensitivity = useGeneralSettingsStore((state) => state.values.zoomSensitivity)
+
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState<Pan>({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
   const [baseSize, setBaseSize] = useState<Size | null>(null)
   const [sectionSize, setSectionSize] = useState<Size | null>(null)
   const panStartRef = useRef<{ mouseX: number; mouseY: number; panX: number; panY: number } | null>(null)
+  const lastWheelTimeRef = useRef<number | null>(null)
 
   useEffect(() => {
     // Reset when a new image loads. The panel stays mounted across image
@@ -91,6 +100,7 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setZoom(1)
     setPan({ x: 0, y: 0 })
+    lastWheelTimeRef.current = null
   }, [imageUrl])
 
   useEffect(() => {
@@ -102,16 +112,16 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
 
       if (event.key === 'ArrowUp') {
         event.preventDefault()
-        setZoom((z) => clamp(z * Math.exp(ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
+        setZoom((z) => clamp(z * Math.exp(zoomBaseRate), MIN_ZOOM, MAX_ZOOM))
       } else if (event.key === 'ArrowDown') {
         event.preventDefault()
-        setZoom((z) => clamp(z * Math.exp(-ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
+        setZoom((z) => clamp(z * Math.exp(-zoomBaseRate), MIN_ZOOM, MAX_ZOOM))
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [imageUrl])
+  }, [imageUrl, zoomBaseRate])
 
   useEffect(() => {
     if (!isPanning) return
@@ -166,8 +176,21 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
     const section = sectionRef.current
     if (!img || !section) return
 
+    // Scale the zoom rate by how fast the user is scrolling: a burst of
+    // large deltas arriving close together (a fast flick) ramps the
+    // multiplier up, while a slow, deliberate scroll stays close to the
+    // base rate. Both signals are needed since trackpads emit frequent
+    // small deltas and mouse wheels emit sparse large ones.
+    const now = performance.now()
+    const previous = lastWheelTimeRef.current
+    lastWheelTimeRef.current = now
+    const dt = previous === null ? null : now - previous
+    const speed = dt === null || dt <= 0 ? 0 : Math.abs(event.deltaY) / dt
+    const speedMultiplier = clamp(1 + zoomSensitivity * speed, 1, MAX_SPEED_MULTIPLIER)
+    const effectiveRate = zoomBaseRate * speedMultiplier
+
     const direction = event.deltaY < 0 ? 1 : -1
-    const nextZoom = clamp(zoom * Math.exp(direction * ZOOM_RATE), MIN_ZOOM, MAX_ZOOM)
+    const nextZoom = clamp(zoom * Math.exp(direction * effectiveRate), MIN_ZOOM, MAX_ZOOM)
     if (nextZoom === zoom) return
 
     // Anchor the zoom to the cursor: work out how far the cursor sits from
@@ -203,8 +226,8 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   }
 
   const setZoomPercent = (percent: number): void => setZoom(clamp(percent / 100, MIN_ZOOM, MAX_ZOOM))
-  const zoomIn = (): void => setZoom((z) => clamp(z * Math.exp(ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
-  const zoomOut = (): void => setZoom((z) => clamp(z * Math.exp(-ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
+  const zoomIn = (): void => setZoom((z) => clamp(z * Math.exp(zoomBaseRate), MIN_ZOOM, MAX_ZOOM))
+  const zoomOut = (): void => setZoom((z) => clamp(z * Math.exp(-zoomBaseRate), MIN_ZOOM, MAX_ZOOM))
 
   /** Recenters the view on a point given as a 0-1 fraction of the image — what a minimap click/drag reports. */
   const panToImageFraction = (fractionX: number, fractionY: number): void => {
@@ -221,8 +244,12 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   const currentPercent = Math.round(zoom * 100)
   const zoomOptions = Array.from(new Set([...ZOOM_PRESETS, currentPercent])).sort((a, b) => a - b)
 
+  // Computed whenever we have enough layout info, regardless of whether
+  // it's currently meant to be shown — the navigator stays mounted at all
+  // times and just fades via `navigatorVisible`, so its rect always needs
+  // to be up to date underneath.
   let navigatorRect: NavigatorRect | null = null
-  if (baseSize && sectionSize && currentPercent > navigatorThresholdPercent) {
+  if (baseSize && sectionSize) {
     const halfW = (baseSize.width * zoom) / 2
     const halfH = (baseSize.height * zoom) / 2
     const imgLeft = pan.x - halfW
@@ -255,6 +282,7 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
     zoomOptions,
     baseSize,
     navigatorRect,
+    navigatorVisible: currentPercent > navigatorThresholdPercent,
     handleWheel,
     handlePanMouseDown,
     setZoomPercent,

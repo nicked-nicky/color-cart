@@ -51,6 +51,29 @@ function GeneralSettingsCategory(): JSX.Element {
         />
       </div>
 
+      <div className="mb-1 mt-4 text-xs font-medium text-ink-faint">Scroll behavior</div>
+      <p className="mb-2 text-[11px] text-ink-faint">
+        Wheel-zoom speeds up on a fast flick, on top of this base rate.
+      </p>
+      <div className="divide-y divide-border/60">
+        <NumberField
+          label="Base zoom rate"
+          value={values.zoomBaseRate}
+          onChange={(zoomBaseRate) => update({ zoomBaseRate })}
+          min={0.02}
+          max={0.5}
+          step={0.01}
+        />
+        <NumberField
+          label="Scroll speed sensitivity"
+          value={values.zoomSensitivity}
+          onChange={(zoomSensitivity) => update({ zoomSensitivity })}
+          min={0}
+          max={5}
+          step={0.25}
+        />
+      </div>
+
       <Button variant="outline" onClick={reset} icon={<RotateCcw size={13} />} className="mt-4">
         Reset to defaults
       </Button>

@@ -86,3 +86,26 @@ input[type='number']::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
 }
+
+/* Strip the native color-input chrome (a rectangular button with its own
+   border/padding) down to just the swatch, so it can be styled from
+   className like any other round element instead of looking like a
+   stray OS control. The picker dialog itself still opens on click — only
+   the closed-state swatch is restyled. */
+input[type='color'] {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 9999px;
+}
+
+input[type='color']::-webkit-color-swatch {
+  border: none;
+  border-radius: 9999px;
+}

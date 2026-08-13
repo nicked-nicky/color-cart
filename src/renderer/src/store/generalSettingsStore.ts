@@ -12,13 +12,20 @@ export interface GeneralSettings {
    *  very large source photos from being rasterized at full resolution
    *  just to read a pixel color back out. */
   maxSamplingDimension: number
+  /** Zoom-per-notch rate at rest (no scroll-speed boost applied). */
+  zoomBaseRate: number
+  /** How strongly a fast flick speeds up zooming beyond the base rate.
+   *  0 disables the effect entirely — every scroll zooms at the base rate. */
+  zoomSensitivity: number
 }
 
 export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   duplicateDeltaE: 1,
   loupeMagnification: 4,
   loupeDelayMs: 100,
-  maxSamplingDimension: 2048
+  maxSamplingDimension: 2048,
+  zoomBaseRate: 0.15,
+  zoomSensitivity: 1.2
 }
 
 export const useGeneralSettingsStore = createPersistedSettingsStore<GeneralSettings>(
