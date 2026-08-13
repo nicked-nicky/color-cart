@@ -1,7 +1,8 @@
 import { JSX } from 'react'
 import { Palette, Trash2 } from 'lucide-react'
 import { usePaletteStore } from '@renderer/store/paletteStore'
-import PaletteSwatch from './PaletteSwatch'
+import PaletteSwatch from '../molecules/PaletteSwatch'
+import Button from '../atoms/Button'
 
 function PaletteBasketPanel(): JSX.Element {
   const colors = usePaletteStore((state) => state.colors)
@@ -30,14 +31,15 @@ function PaletteBasketPanel(): JSX.Element {
       </div>
 
       {colors.length > 0 && (
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          tone="danger"
           onClick={clear}
-          className="flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-neutral-700 py-1.5 text-xs text-neutral-400 transition-colors hover:border-red-500/60 hover:text-red-400"
+          icon={<Trash2 size={14} />}
+          className="w-full shrink-0 justify-center py-1.5"
         >
-          <Trash2 size={14} />
           Clear all
-        </button>
+        </Button>
       )}
     </aside>
   )

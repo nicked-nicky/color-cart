@@ -3,6 +3,7 @@ import { animate } from 'animejs'
 import { X, Copy, Check } from 'lucide-react'
 import type { PaletteColor } from '@renderer/types'
 import { nameColor } from '@renderer/lib/colorName'
+import ColorDot from '../atoms/ColorDot'
 
 interface PaletteSwatchProps {
   color: PaletteColor
@@ -35,10 +36,7 @@ function PaletteSwatch({ color, onRemove }: PaletteSwatchProps): JSX.Element {
   return (
     <div ref={rootRef} className="flex w-20 flex-col items-center gap-1.5">
       <div className="group relative h-16 w-16">
-        <div
-          className="h-16 w-16 rounded-full border border-neutral-700 shadow-inner"
-          style={{ backgroundColor: color.hex }}
-        />
+        <ColorDot hex={color.hex} size={64} className="h-16 w-16" />
         <button
           type="button"
           aria-label={`Remove ${color.hex}`}

@@ -8,9 +8,10 @@ import {
   type SyntheticEvent,
   type WheelEvent
 } from 'react'
-import { ImageIcon, Minus, Plus } from 'lucide-react'
+import { ImageIcon } from 'lucide-react'
 import { useImageStore } from '@renderer/store/imageStore'
 import { usePaletteStore } from '@renderer/store/paletteStore'
+import ZoomControl from '../molecules/ZoomControl'
 
 const MIN_ZOOM = 0.1
 const MAX_ZOOM = 5
@@ -276,35 +277,14 @@ function ReferenceImagePanel(): JSX.Element {
           style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
         />
 
-        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-neutral-600 bg-neutral-900/90 px-2 py-1.5 shadow-lg backdrop-blur">
-          <button
-            type="button"
-            aria-label="Zoom out"
-            onClick={() => setZoom((z) => clamp(z - ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
-          >
-            <Minus size={15} />
-          </button>
-          <select
-            aria-label="Zoom level"
-            value={currentPercent}
-            onChange={(event) => setZoom(Number(event.target.value) / 100)}
-            className="h-7 rounded-full bg-transparent px-1 text-center text-xs text-neutral-300 outline-none hover:bg-neutral-700 focus:bg-neutral-700"
-          >
-            {options.map((percent) => (
-              <option key={percent} value={percent} className="bg-neutral-800 text-neutral-100">
-                {percent}%
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            aria-label="Zoom in"
-            onClick={() => setZoom((z) => clamp(z + ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
-          >
-            <Plus size={15} />
-          </button>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+          <ZoomControl
+            percent={currentPercent}
+            options={options}
+            onZoomOut={() => setZoom((z) => clamp(z - ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))}
+            onZoomIn={() => setZoom((z) => clamp(z + ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))}
+            onSelect={(percent) => setZoom(percent / 100)}
+          />
         </div>
 
         {loupeStyle && (
