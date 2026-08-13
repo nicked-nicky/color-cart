@@ -7,7 +7,7 @@ function PaletteBasketPanel(): JSX.Element {
   const removeColor = usePaletteStore((state) => state.removeColor)
 
   return (
-    <aside className="flex w-80 shrink-0 flex-col gap-3 bg-neutral-950 p-4">
+    <aside className="flex w-80 shrink-0 flex-col gap-3 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-lg shadow-black/30">
       <div className="flex items-center gap-2 text-neutral-300">
         <Palette size={16} />
         <h2 className="text-sm font-medium">Palette ({colors.length})</h2>
@@ -22,7 +22,7 @@ function PaletteBasketPanel(): JSX.Element {
           {colors.map((color) => (
             <div
               key={color.id}
-              className="group relative h-16 w-16 overflow-hidden rounded-md border border-neutral-800"
+              className="group relative h-16 w-16 overflow-hidden rounded-xl border border-neutral-800"
               style={{ backgroundColor: color.hex }}
               title={color.hex}
             >
@@ -30,11 +30,11 @@ function PaletteBasketPanel(): JSX.Element {
                 type="button"
                 aria-label={`Remove ${color.hex}`}
                 onClick={() => removeColor(color.id)}
-                className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-sm bg-neutral-950/70 text-neutral-200 opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-950/70 text-neutral-200 opacity-0 transition-opacity group-hover:opacity-100"
               >
                 <X size={10} />
               </button>
-              <span className="absolute bottom-0.5 left-0.5 rounded-sm bg-neutral-950/70 px-1 text-[10px] leading-tight text-neutral-200">
+              <span className="absolute bottom-1 left-1 rounded-full bg-neutral-950/70 px-1.5 text-[10px] leading-tight text-neutral-200">
                 {color.hex}
               </span>
             </div>

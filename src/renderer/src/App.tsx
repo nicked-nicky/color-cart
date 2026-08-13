@@ -17,7 +17,7 @@ function App(): JSX.Element {
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-neutral-950 text-neutral-100">
       <TitleBar />
-      <main className="flex flex-1 overflow-hidden">
+      <main className="flex flex-1 gap-3 overflow-hidden p-3">
         <div className="panel-animate flex flex-1 opacity-0">
           <ReferenceImagePanel />
         </div>

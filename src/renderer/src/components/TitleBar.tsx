@@ -21,16 +21,16 @@ function TitleBar(): JSX.Element {
       onDoubleClick={() => void windowApi?.toggleMaximize()}
     >
       <div className="flex items-center gap-2 pl-3">
-        <div className="h-2.5 w-2.5 rounded-sm bg-gradient-to-br from-fuchsia-500 to-sky-500" />
+        <div className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-fuchsia-500 to-sky-500" />
         <span className="text-xs font-medium text-neutral-400">color-basket</span>
       </div>
 
-      <div className="flex h-full [-webkit-app-region:no-drag]">
+      <div className="flex h-full items-center gap-1 pr-1.5 [-webkit-app-region:no-drag]">
         <button
           type="button"
           aria-label="Minimize"
           onClick={() => void windowApi?.minimize()}
-          className="flex h-full w-11 items-center justify-center text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+          className="flex h-7 w-9 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
         >
           <Minus size={14} />
         </button>
@@ -38,7 +38,7 @@ function TitleBar(): JSX.Element {
           type="button"
           aria-label={isMaximized ? 'Restore' : 'Maximize'}
           onClick={() => void windowApi?.toggleMaximize()}
-          className="flex h-full w-11 items-center justify-center text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+          className="flex h-7 w-9 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
         >
           {isMaximized ? <Copy size={12} /> : <Square size={12} />}
         </button>
@@ -46,7 +46,7 @@ function TitleBar(): JSX.Element {
           type="button"
           aria-label="Close"
           onClick={() => void windowApi?.close()}
-          className="flex h-full w-11 items-center justify-center text-neutral-400 transition-colors hover:bg-red-600 hover:text-neutral-100"
+          className="flex h-7 w-9 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-red-600 hover:text-neutral-100"
         >
           <X size={15} />
         </button>
