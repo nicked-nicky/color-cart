@@ -1,5 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
+import { pathToFileURL } from 'url'
 
 const isDev = !app.isPackaged
 
@@ -10,7 +11,7 @@ function createWindow(): void {
     minWidth: 960,
     minHeight: 640,
     show: false,
-    autoHideMenuBar: true,
+    frame: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -22,6 +23,9 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
+
+  mainWindow.on('maximize', () => mainWindow.webContents.send('window:maximized', true))
+  mainWindow.on('unmaximize', () => mainWindow.webContents.send('window:maximized', false))
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     void shell.openExternal(details.url)
@@ -35,7 +39,30 @@ function createWindow(): void {
   }
 }
 
+function registerWindowControlHandlers(): void {
+  ipcMain.handle('window:minimize', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.minimize()
+  })
+
+  ipcMain.handle('window:toggleMaximize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return
+    if (win.isMaximized()) win.unmaximize()
+    else win.maximize()
+  })
+
+  ipcMain.handle('window:close', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.close()
+  })
+
+  ipcMain.handle('window:isMaximized', (event) => {
+    return BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false
+  })
+}
+
 function registerIpcHandlers(): void {
+  registerWindowControlHandlers()
+
   ipcMain.handle('dialog:openImage', async () => {
     const result = await dialog.showOpenDialog({
       title: 'Open reference image',
@@ -43,7 +70,8 @@ function registerIpcHandlers(): void {
       filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
     })
     if (result.canceled || result.filePaths.length === 0) return null
-    return result.filePaths[0]
+    const filePath = result.filePaths[0]
+    return { path: filePath, url: pathToFileURL(filePath).href }
   })
 
   ipcMain.handle('dialog:savePalette', async (_event, defaultName: string) => {

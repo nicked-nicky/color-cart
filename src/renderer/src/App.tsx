@@ -1,33 +1,30 @@
-import { ImageIcon, Palette } from 'lucide-react'
-import { usePaletteStore } from './store/paletteStore'
+import { useEffect } from 'react'
+import { animate, stagger } from 'animejs'
+import TitleBar from './components/TitleBar'
+import ReferenceImagePanel from './components/ReferenceImagePanel'
+import PaletteBasketPanel from './components/PaletteBasketPanel'
 
 function App(): JSX.Element {
-  const colors = usePaletteStore((state) => state.colors)
+  useEffect(() => {
+    animate('.panel-animate', {
+      opacity: [0, 1],
+      duration: 420,
+      delay: stagger(90),
+      ease: 'outQuad'
+    })
+  }, [])
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-neutral-950 text-neutral-100 md:flex-row">
-      <section className="flex flex-1 items-center justify-center border-b border-neutral-800 md:border-b-0 md:border-r">
-        <div className="flex flex-col items-center gap-2 text-neutral-500">
-          <ImageIcon size={32} />
-          <p className="text-sm">Open a reference image to start picking colors</p>
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-neutral-950 text-neutral-100">
+      <TitleBar />
+      <main className="flex flex-1 overflow-hidden">
+        <div className="panel-animate flex flex-1 opacity-0">
+          <ReferenceImagePanel />
         </div>
-      </section>
-      <aside className="flex w-full flex-col gap-3 p-4 md:w-80">
-        <div className="flex items-center gap-2 text-neutral-300">
-          <Palette size={18} />
-          <h2 className="text-sm font-medium">Palette ({colors.length})</h2>
+        <div className="panel-animate opacity-0">
+          <PaletteBasketPanel />
         </div>
-        <div className="grid grid-cols-4 gap-2">
-          {colors.map((color) => (
-            <div
-              key={color.id}
-              className="aspect-square rounded-md border border-neutral-800"
-              style={{ backgroundColor: color.hex }}
-              title={color.hex}
-            />
-          ))}
-        </div>
-      </aside>
+      </main>
     </div>
   )
 }
