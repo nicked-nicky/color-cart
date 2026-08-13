@@ -1,5 +1,43 @@
 @import "tailwindcss";
 
+/* Semantic color tokens, resolved through CSS variables so the whole app
+   can be re-themed by flipping a single class on <html> instead of every
+   component carrying its own light/dark variant classes. */
+@theme {
+  --color-canvas: var(--ui-canvas);
+  --color-surface: var(--ui-surface);
+  --color-surface-hover: var(--ui-surface-hover);
+  --color-border: var(--ui-border);
+  --color-border-subtle: var(--ui-border-subtle);
+  --color-ink: var(--ui-ink);
+  --color-ink-muted: var(--ui-ink-muted);
+  --color-ink-faint: var(--ui-ink-faint);
+}
+
+/* Dark is the baseline/fallback so there's no flash before the theme
+   store applies a class on first paint. */
+:root {
+  --ui-canvas: #171717;
+  --ui-surface: #262626;
+  --ui-surface-hover: #404040;
+  --ui-border: #404040;
+  --ui-border-subtle: #525252;
+  --ui-ink: #f5f5f5;
+  --ui-ink-muted: #d4d4d4;
+  --ui-ink-faint: #a3a3a3;
+}
+
+.light {
+  --ui-canvas: #f0f0f0;
+  --ui-surface: #ffffff;
+  --ui-surface-hover: #e5e5e5;
+  --ui-border: #d4d4d4;
+  --ui-border-subtle: #e5e5e5;
+  --ui-ink: #171717;
+  --ui-ink-muted: #404040;
+  --ui-ink-faint: #737373;
+}
+
 /* Slightly larger base scale — Tailwind's default spacing/sizing/text
    utilities are rem-based, so this nudges the whole interface (text,
    padding, swatch/button sizes, etc.) up together in one place. */

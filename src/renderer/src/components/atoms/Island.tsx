@@ -11,7 +11,7 @@ interface IslandProps {
  * Tailwind's generated-stylesheet cascade order.
  */
 function Island({ children, className = '' }: IslandProps): JSX.Element {
-  return <div className={`flex h-full items-center rounded-xl border ${className}`}>{children}</div>
+  return <div className={`flex h-full items-center rounded-full border ${className}`}>{children}</div>
 }
 
 export default Island

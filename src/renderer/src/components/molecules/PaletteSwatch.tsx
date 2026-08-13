@@ -48,13 +48,13 @@ function PaletteSwatch({ color, onRemove }: PaletteSwatchProps): JSX.Element {
       </div>
 
       <div className="flex w-full flex-col items-center text-center">
-        <span className="w-full truncate text-[12px] text-neutral-300" title={name}>
+        <span className="w-full truncate text-[12px] text-ink-muted" title={name}>
           {name}
         </span>
         <button
           type="button"
           onClick={() => void handleCopy()}
-          className="group/hex flex items-center gap-1 text-[11px] text-neutral-500 transition-colors hover:text-neutral-300"
+          className="group/hex flex items-center gap-1 text-[11px] text-ink-faint transition-colors hover:text-ink-muted"
         >
           <span className="underline-offset-2 group-hover/hex:underline">{color.hex}</span>
           {copied ? (

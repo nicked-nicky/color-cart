@@ -1,15 +1,18 @@
 import type { PaletteColor } from '@renderer/types'
 
 export type PaletteExportOrientation = 'vertical' | 'horizontal'
+export type PaletteExportShape = 'oval' | 'circle' | 'square'
 
 /**
  * Every visual knob for the exported palette image lives here so the
  * settings UI can read/write it without the renderer hardcoding layout.
  */
 export interface PaletteExportOptions {
-  /** Oval width before rotation, in px. */
+  /** Item shape: oval, circle, or square — all drawn at the same 45deg angle. */
+  shape: PaletteExportShape
+  /** Item width before rotation, in px. */
   ovalWidth: number
-  /** Oval height before rotation, in px. */
+  /** Item height before rotation, in px (ignored for circle, which uses the smaller of the two). */
   ovalHeight: number
   /** Center-to-center distance between items along the fill direction. */
   itemGap: number
@@ -19,13 +22,14 @@ export interface PaletteExportOptions {
   groupSize: number
   /** Fill direction: stack down each column, or across each row. */
   orientation: PaletteExportOrientation
-  /** Oval outline color. */
+  /** Item outline color. */
   strokeColor: string
-  /** Oval outline width, in px. */
+  /** Item outline width, in px. */
   strokeWidth: number
 }
 
 export const DEFAULT_PALETTE_EXPORT_OPTIONS: PaletteExportOptions = {
+  shape: 'oval',
   ovalWidth: 110,
   ovalHeight: 64,
   itemGap: 115,
@@ -76,7 +80,14 @@ export function renderPaletteCanvas(
     ctx.translate(centerX, centerY)
     ctx.rotate(Math.PI / 4)
     ctx.beginPath()
-    ctx.ellipse(0, 0, opts.ovalWidth / 2, opts.ovalHeight / 2, 0, 0, Math.PI * 2)
+    if (opts.shape === 'circle') {
+      const radius = Math.min(opts.ovalWidth, opts.ovalHeight) / 2
+      ctx.ellipse(0, 0, radius, radius, 0, 0, Math.PI * 2)
+    } else if (opts.shape === 'square') {
+      ctx.rect(-opts.ovalWidth / 2, -opts.ovalHeight / 2, opts.ovalWidth, opts.ovalHeight)
+    } else {
+      ctx.ellipse(0, 0, opts.ovalWidth / 2, opts.ovalHeight / 2, 0, 0, Math.PI * 2)
+    }
     ctx.fillStyle = color.hex
     ctx.fill()
     ctx.lineWidth = opts.strokeWidth

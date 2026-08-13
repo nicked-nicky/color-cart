@@ -1,8 +1,9 @@
-import { JSX } from 'react'
+import { JSX, type ReactNode } from 'react'
 
 interface SegmentedControlOption<T extends string> {
-  label: string
+  label: ReactNode
   value: T
+  ariaLabel?: string
 }
 
 interface SegmentedControlProps<T extends string> {
@@ -17,16 +18,15 @@ function SegmentedControl<T extends string>({
   onChange
 }: SegmentedControlProps<T>): JSX.Element {
   return (
-    <div className="flex rounded-lg border border-neutral-700 bg-neutral-900 p-0.5">
+    <div className="flex rounded-full border border-border bg-canvas p-0.5">
       {options.map((option) => (
         <button
           key={option.value}
           type="button"
+          aria-label={option.ariaLabel}
           onClick={() => onChange(option.value)}
-          className={`rounded-md px-3 py-1 text-xs transition-colors ${
-            value === option.value
-              ? 'bg-neutral-700 text-neutral-100'
-              : 'text-neutral-400 hover:text-neutral-200'
+          className={`flex items-center justify-center rounded-full px-3 py-1 text-xs transition-colors ${
+            value === option.value ? 'bg-surface-hover text-ink' : 'text-ink-faint hover:text-ink-muted'
           }`}
         >
           {option.label}

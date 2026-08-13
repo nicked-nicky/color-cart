@@ -23,6 +23,10 @@ export default [
     rules: {
       ...tseslintPlugin.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      // TypeScript already catches genuine undefined-variable errors, and
+      // unlike tsc, no-undef isn't type-aware — it false-positives on
+      // ambient type-only globals like the `Electron` namespace.
+      'no-undef': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
     }

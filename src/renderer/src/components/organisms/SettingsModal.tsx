@@ -47,7 +47,7 @@ function SettingsModal(): JSX.Element | null {
       <div
         ref={panelRef}
         onClick={(event) => event.stopPropagation()}
-        className="relative flex h-[520px] max-h-[85vh] w-[760px] max-w-[92vw] overflow-hidden rounded-2xl border border-neutral-700 bg-neutral-800 shadow-2xl"
+        className="relative flex h-[520px] max-h-[85vh] w-[760px] max-w-[92vw] overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl"
       >
         <IconButton
           ariaLabel="Close settings"
@@ -56,8 +56,8 @@ function SettingsModal(): JSX.Element | null {
           className="absolute right-3 top-3"
         />
 
-        <nav className="flex w-48 shrink-0 flex-col gap-1 border-r border-neutral-700 p-3">
-          <span className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <nav className="flex w-48 shrink-0 flex-col gap-1 border-r border-border p-3">
+          <span className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-wide text-ink-faint">
             Settings
           </span>
           {CATEGORIES.map((category) => (

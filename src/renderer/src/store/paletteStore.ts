@@ -17,11 +17,13 @@ interface PaletteState {
 
 function toOklch(hex: string): [number, number, number] {
   const [l, c, h] = new Color(hex).to('oklch').coords
-  return [l, c, Number.isNaN(h) ? 0 : h]
+  return [l ?? 0, c ?? 0, h === null || Number.isNaN(h) ? 0 : h]
 }
 
 function toRgb(hex: string): [number, number, number] {
-  const [r, g, b] = new Color(hex).to('srgb').coords.map((v) => Math.round(v * 255))
+  const [r, g, b] = new Color(hex)
+    .to('srgb')
+    .coords.map((v) => Math.round((v ?? 0) * 255))
   return [r, g, b]
 }
 

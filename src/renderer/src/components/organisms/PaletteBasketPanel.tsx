@@ -10,15 +10,15 @@ function PaletteBasketPanel(): JSX.Element {
   const clear = usePaletteStore((state) => state.clear)
 
   return (
-    <aside className="flex h-full w-80 shrink-0 flex-col gap-3 rounded-2xl border border-neutral-700 bg-neutral-800 p-4 shadow-lg shadow-black/30">
-      <div className="flex shrink-0 items-center gap-2 text-neutral-300">
+    <aside className="flex h-full w-80 shrink-0 flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-lg shadow-black/30">
+      <div className="flex shrink-0 items-center gap-2 text-ink-muted">
         <Palette size={18} />
         <h2 className="text-sm font-medium">Palette ({colors.length})</h2>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {colors.length === 0 ? (
-          <p className="text-xs text-neutral-600">
+          <p className="text-xs text-ink-faint">
             Click and hold on the reference image to pick a color.
           </p>
         ) : (

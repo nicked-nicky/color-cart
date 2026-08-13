@@ -35,5 +35,5 @@ if (process.contextIsolated) {
   }
 } else {
   // Fallback only relevant if contextIsolation is ever disabled; not used in this app.
-  ;(window as unknown as { api: ColorBasketApi }).api = api
+  ;(globalThis as unknown as { api: ColorBasketApi }).api = api
 }

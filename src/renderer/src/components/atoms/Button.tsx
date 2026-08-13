@@ -19,13 +19,12 @@ function Button({
   tone = 'default',
   className = ''
 }: ButtonProps): JSX.Element {
-  const base = 'flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs transition-colors'
+  const base = 'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-colors'
 
   const variantClass = {
-    island:
-      'border border-neutral-700 bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-neutral-100',
-    ghost: 'text-neutral-300 hover:bg-neutral-700 hover:text-neutral-100',
-    outline: 'border border-neutral-700 text-neutral-400'
+    island: 'border border-border bg-surface text-ink-muted hover:bg-surface-hover hover:text-ink',
+    ghost: 'text-ink-muted hover:bg-surface-hover hover:text-ink',
+    outline: 'border border-border text-ink-faint'
   }[variant]
 
   const toneClass = tone === 'danger' ? 'hover:border-red-500/60 hover:text-red-400' : ''

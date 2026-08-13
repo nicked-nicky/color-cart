@@ -5,7 +5,8 @@ import { useExportSettingsStore } from '@renderer/store/exportSettingsStore'
 import {
   renderPaletteCanvas,
   canvasToPngDataUrl,
-  type PaletteExportOrientation
+  type PaletteExportOrientation,
+  type PaletteExportShape
 } from '@renderer/lib/exportPalette'
 import type { PaletteColor } from '@renderer/types'
 import NumberField from '../atoms/NumberField'
@@ -36,6 +37,14 @@ const SAMPLE_COLORS: PaletteColor[] = SAMPLE_HEXES.map((hex, index) => ({
   sourceCoordinates: null
 }))
 
+const SHAPE_OPTIONS: { value: PaletteExportShape; ariaLabel: string; preview: JSX.Element }[] = [
+  { value: 'oval', ariaLabel: 'Oval', preview: <div className="h-3 w-5 rounded-full bg-current" /> },
+  { value: 'circle', ariaLabel: 'Circle', preview: <div className="h-4 w-4 rounded-full bg-current" /> },
+  { value: 'square', ariaLabel: 'Square', preview: <div className="h-4 w-4 rounded-sm bg-current" /> }
+]
+
+// Deliberately fixed regardless of theme — a checkerboard is the universal
+// convention for "transparent" and shouldn't shift with light/dark.
 const CHECKERBOARD_STYLE = {
   backgroundImage:
     'linear-gradient(45deg, #3f3f46 25%, transparent 25%), linear-gradient(-45deg, #3f3f46 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3f3f46 75%), linear-gradient(-45deg, transparent 75%, #3f3f46 75%)',
@@ -63,11 +72,12 @@ function ExportSettingsCategory(): JSX.Element {
   return (
     <div className="flex h-full gap-6">
       <div className="flex-1 overflow-y-auto pr-1">
-        <h3 className="mb-1 text-sm font-medium text-neutral-100">Export Image</h3>
-        <p className="mb-4 text-xs text-neutral-500">
+        <h3 className="mb-1 text-sm font-medium text-ink">Export Image</h3>
+        <p className="mb-4 text-xs text-ink-faint">
           Controls how the palette is laid out when exported or copied as an image.
         </p>
 
+        <div className="mb-1 text-xs font-medium text-ink-faint">Orientation</div>
         <SegmentedControl<PaletteExportOrientation>
           options={[
             { label: 'Vertical', value: 'vertical' },
@@ -77,7 +87,18 @@ function ExportSettingsCategory(): JSX.Element {
           onChange={(orientation) => update({ orientation })}
         />
 
-        <div className="mt-3 divide-y divide-neutral-700/60">
+        <div className="mb-1 mt-3 text-xs font-medium text-ink-faint">Shape</div>
+        <SegmentedControl<PaletteExportShape>
+          options={SHAPE_OPTIONS.map(({ value, ariaLabel, preview }) => ({
+            value,
+            ariaLabel,
+            label: preview
+          }))}
+          value={options.shape}
+          onChange={(shape) => update({ shape })}
+        />
+
+        <div className="mt-3 divide-y divide-border/60">
           <NumberField
             label={options.orientation === 'vertical' ? 'Items per column' : 'Items per row'}
             value={options.groupSize}
@@ -86,7 +107,7 @@ function ExportSettingsCategory(): JSX.Element {
             max={50}
           />
           <NumberField
-            label="Oval width"
+            label={options.shape === 'square' ? 'Width' : 'Oval width'}
             value={options.ovalWidth}
             onChange={(ovalWidth) => update({ ovalWidth })}
             min={10}
@@ -94,7 +115,7 @@ function ExportSettingsCategory(): JSX.Element {
             suffix="px"
           />
           <NumberField
-            label="Oval height"
+            label={options.shape === 'square' ? 'Height' : 'Oval height'}
             value={options.ovalHeight}
             onChange={(ovalHeight) => update({ ovalHeight })}
             min={10}
@@ -133,9 +154,9 @@ function ExportSettingsCategory(): JSX.Element {
       </div>
 
       <div className="flex w-56 shrink-0 flex-col gap-2">
-        <span className="text-xs font-medium text-neutral-500">Preview</span>
+        <span className="text-xs font-medium text-ink-faint">Preview</span>
         <div
-          className="flex flex-1 items-center justify-center rounded-xl border border-neutral-700 p-3"
+          className="flex flex-1 items-center justify-center rounded-xl border border-border p-3"
           style={CHECKERBOARD_STYLE}
         >
           <img
@@ -145,7 +166,7 @@ function ExportSettingsCategory(): JSX.Element {
           />
         </div>
         {realColors.length === 0 && (
-          <p className="text-[11px] text-neutral-600">
+          <p className="text-[11px] text-ink-faint">
             Showing sample colors — pick some to preview your actual palette.
           </p>
         )}
