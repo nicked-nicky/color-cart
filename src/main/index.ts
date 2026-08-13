@@ -9,6 +9,11 @@ const IMAGE_MIME_TYPES: Record<string, string> = {
 }
 
 const isDev = !app.isPackaged
+const EXPORT_SETTINGS_FILE = 'export-settings.json'
+
+function settingsFilePath(name: string): string {
+  return join(app.getPath('userData'), name)
+}
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -120,6 +125,28 @@ function registerIpcHandlers(): void {
     const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '')
     await writeFile(filePath, Buffer.from(base64, 'base64'))
     return true
+  })
+
+  ipcMain.handle('settings:loadExportOptions', async () => {
+    try {
+      const { readFile } = await import('fs/promises')
+      const raw = await readFile(settingsFilePath(EXPORT_SETTINGS_FILE), 'utf-8')
+      return JSON.parse(raw)
+    } catch {
+      // No saved settings yet, or the file is unreadable/corrupt — the
+      // renderer falls back to defaults either way.
+      return null
+    }
+  })
+
+  ipcMain.handle('settings:saveExportOptions', async (_event, options: unknown) => {
+    try {
+      const { writeFile } = await import('fs/promises')
+      await writeFile(settingsFilePath(EXPORT_SETTINGS_FILE), JSON.stringify(options, null, 2), 'utf-8')
+      return true
+    } catch {
+      return false
+    }
   })
 }
 

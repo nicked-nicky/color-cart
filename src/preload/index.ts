@@ -14,6 +14,9 @@ const api = {
     ipcRenderer.invoke('dialog:savePalette', defaultName),
   writePaletteImage: (filePath: string, dataUrl: string): Promise<boolean> =>
     ipcRenderer.invoke('fs:writePaletteImage', filePath, dataUrl),
+  loadExportSettings: (): Promise<unknown> => ipcRenderer.invoke('settings:loadExportOptions'),
+  saveExportSettings: (options: unknown): Promise<boolean> =>
+    ipcRenderer.invoke('settings:saveExportOptions', options),
   window: {
     minimize: (): Promise<void> => ipcRenderer.invoke('window:minimize'),
     toggleMaximize: (): Promise<void> => ipcRenderer.invoke('window:toggleMaximize'),

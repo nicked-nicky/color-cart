@@ -9,7 +9,7 @@ interface PaletteState {
   addColor: (
     hex: string,
     sourceCoordinates?: SourceCoordinates
-  ) => { added: boolean; duplicateOf?: string }
+  ) => { added: boolean; id?: string; duplicateOf?: string }
   removeColor: (id: string) => void
   reorderColors: (fromIndex: number, toIndex: number) => void
   clear: () => void
@@ -46,7 +46,7 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
       sourceCoordinates: sourceCoordinates ?? null
     }
     set((state) => ({ colors: [...state.colors, newColor] }))
-    return { added: true }
+    return { added: true, id: newColor.id }
   },
   removeColor: (id) => set((state) => ({ colors: state.colors.filter((c) => c.id !== id) })),
   reorderColors: (fromIndex, toIndex) =>

@@ -12,6 +12,11 @@ import type { SourceCoordinates } from '@renderer/types'
 const LOUPE_SIZE = 140
 const LOUPE_MAGNIFICATION = 4
 const LOUPE_APPEAR_DELAY_MS = 100
+/** Cap on the offscreen sampling canvas's longest side, in px. Large source
+ *  photos (e.g. 8000x6000) don't need to be rasterized at full resolution
+ *  just to read a pixel color back out — that's a lot of memory and a slow
+ *  drawImage for no visible benefit. */
+const MAX_SAMPLING_DIMENSION = 2048
 
 interface PickedSample {
   hex: string
@@ -157,11 +162,18 @@ export function useColorPicker({ imgRef, imageUrl, onPick }: UseColorPickerOptio
 
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>): void => {
     const img = event.currentTarget
+    const scale = Math.min(1, MAX_SAMPLING_DIMENSION / Math.max(img.naturalWidth, img.naturalHeight))
     const canvas = document.createElement('canvas')
-    canvas.width = img.naturalWidth
-    canvas.height = img.naturalHeight
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale))
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale))
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    ctx?.drawImage(img, 0, 0)
+    if (ctx) {
+      // Downscaling with smoothing on would blend neighboring source pixels
+      // into whatever gets sampled — nearest-neighbor keeps a picked color
+      // an exact source pixel instead of an average.
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+    }
     canvasRef.current = canvas
   }
 

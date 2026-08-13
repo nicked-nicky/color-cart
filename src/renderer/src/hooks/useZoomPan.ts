@@ -6,6 +6,9 @@ const ZOOM_RATE = 0.15
 const ZOOM_PRESETS = [25, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1000]
 /** Minimum px of the image that must stay inside the viewport at all times. */
 const MIN_VISIBLE_PX = 40
+/** The minimap navigator only shows up once you're zoomed in enough that
+ *  finding your way back around the image actually gets hard. */
+const NAVIGATOR_MIN_PERCENT = 500
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
@@ -16,11 +19,32 @@ interface Pan {
   y: number
 }
 
+interface Size {
+  width: number
+  height: number
+}
+
+interface NavigatorRect {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
 /** Keeps at least MIN_VISIBLE_PX of the image overlapping the section, so it can never be panned or zoomed fully off-screen. */
 function clampPan(pan: Pan, imgRect: DOMRect, sectionRect: DOMRect): Pan {
   const maxX = Math.max(0, sectionRect.width / 2 + imgRect.width / 2 - MIN_VISIBLE_PX)
   const maxY = Math.max(0, sectionRect.height / 2 + imgRect.height / 2 - MIN_VISIBLE_PX)
   return { x: clamp(pan.x, -maxX, maxX), y: clamp(pan.y, -maxY, maxY) }
+}
+
+function observeSize(node: Element, onChange: (size: Size) => void): () => void {
+  const observer = new ResizeObserver(([entry]) => {
+    const box = entry.borderBoxSize?.[0]
+    onChange(box ? { width: box.inlineSize, height: box.blockSize } : entry.contentRect)
+  })
+  observer.observe(node)
+  return () => observer.disconnect()
 }
 
 interface UseZoomPanOptions {
@@ -33,8 +57,9 @@ interface UseZoomPanOptions {
 /**
  * Owns zoom/pan state for the reference image: wheel-to-zoom (anchored to
  * the cursor position so the point under it stays put), arrow-key zoom,
- * and middle-mouse drag-to-pan — with pan always clamped so the image
- * can't disappear off the edge of the viewport.
+ * middle-mouse drag-to-pan, double-click-to-fit, and the data a minimap
+ * navigator needs once you're zoomed in far enough to get lost — all with
+ * pan clamped so the image can't disappear off the edge of the viewport.
  */
 export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions): {
   zoom: number
@@ -42,15 +67,21 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   isPanning: boolean
   currentPercent: number
   zoomOptions: number[]
+  baseSize: Size | null
+  navigatorRect: NavigatorRect | null
   handleWheel: (event: WheelEvent<HTMLDivElement>) => void
   handlePanMouseDown: (event: ReactMouseEvent<HTMLImageElement>) => boolean
   setZoomPercent: (percent: number) => void
   zoomIn: () => void
   zoomOut: () => void
+  zoomToFit: () => void
+  panToImageFraction: (fractionX: number, fractionY: number) => void
 } {
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState<Pan>({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
+  const [baseSize, setBaseSize] = useState<Size | null>(null)
+  const [sectionSize, setSectionSize] = useState<Size | null>(null)
   const panStartRef = useRef<{ mouseX: number; mouseY: number; panX: number; panY: number } | null>(null)
 
   useEffect(() => {
@@ -110,6 +141,25 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
     }
   }, [isPanning, imgRef, sectionRef])
 
+  // The section is mounted in both the loaded and empty states, so its size
+  // only needs tracking once. A CSS `transform` (our zoom scale) doesn't
+  // affect the layout box ResizeObserver reports, so observing the image
+  // element here always yields its *unscaled* — i.e. zoom=1 "fit" — size,
+  // regardless of the current zoom level.
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    return observeSize(section, setSectionSize)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const img = imgRef.current
+    if (!img) return
+    return observeSize(img, setBaseSize)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageUrl])
+
   const handleWheel = (event: WheelEvent<HTMLDivElement>): void => {
     if (event.deltaY === 0) return
     const img = imgRef.current
@@ -155,9 +205,51 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   const setZoomPercent = (percent: number): void => setZoom(clamp(percent / 100, MIN_ZOOM, MAX_ZOOM))
   const zoomIn = (): void => setZoom((z) => clamp(z * Math.exp(ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
   const zoomOut = (): void => setZoom((z) => clamp(z * Math.exp(-ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
+  const zoomToFit = (): void => {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+  }
+
+  /** Recenters the view on a point given as a 0-1 fraction of the image — what a minimap click/drag reports. */
+  const panToImageFraction = (fractionX: number, fractionY: number): void => {
+    const img = imgRef.current
+    const section = sectionRef.current
+    if (!img || !section || !baseSize) return
+    const nextPan = {
+      x: -(fractionX - 0.5) * baseSize.width * zoom,
+      y: -(fractionY - 0.5) * baseSize.height * zoom
+    }
+    setPan(clampPan(nextPan, img.getBoundingClientRect(), section.getBoundingClientRect()))
+  }
 
   const currentPercent = Math.round(zoom * 100)
   const zoomOptions = Array.from(new Set([...ZOOM_PRESETS, currentPercent])).sort((a, b) => a - b)
+
+  let navigatorRect: NavigatorRect | null = null
+  if (baseSize && sectionSize && currentPercent > NAVIGATOR_MIN_PERCENT) {
+    const halfW = (baseSize.width * zoom) / 2
+    const halfH = (baseSize.height * zoom) / 2
+    const imgLeft = pan.x - halfW
+    const imgTop = pan.y - halfH
+    const imgRight = imgLeft + baseSize.width * zoom
+    const imgBottom = imgTop + baseSize.height * zoom
+    const viewLeft = -sectionSize.width / 2
+    const viewTop = -sectionSize.height / 2
+    const viewRight = sectionSize.width / 2
+    const viewBottom = sectionSize.height / 2
+
+    const fracLeft = clamp((Math.max(imgLeft, viewLeft) - imgLeft) / (baseSize.width * zoom), 0, 1)
+    const fracRight = clamp((Math.min(imgRight, viewRight) - imgLeft) / (baseSize.width * zoom), 0, 1)
+    const fracTop = clamp((Math.max(imgTop, viewTop) - imgTop) / (baseSize.height * zoom), 0, 1)
+    const fracBottom = clamp((Math.min(imgBottom, viewBottom) - imgTop) / (baseSize.height * zoom), 0, 1)
+
+    navigatorRect = {
+      left: fracLeft * 100,
+      top: fracTop * 100,
+      width: Math.max(0, fracRight - fracLeft) * 100,
+      height: Math.max(0, fracBottom - fracTop) * 100
+    }
+  }
 
   return {
     zoom,
@@ -165,10 +257,14 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
     isPanning,
     currentPercent,
     zoomOptions,
+    baseSize,
+    navigatorRect,
     handleWheel,
     handlePanMouseDown,
     setZoomPercent,
     zoomIn,
-    zoomOut
+    zoomOut,
+    zoomToFit,
+    panToImageFraction
   }
 }

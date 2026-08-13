@@ -4,6 +4,7 @@ import TitleBar from './components/organisms/TitleBar'
 import ReferenceImagePanel from './components/organisms/ReferenceImagePanel'
 import PaletteBasketPanel from './components/organisms/PaletteBasketPanel'
 import SettingsModal from './components/organisms/SettingsModal'
+import ToastStack from './components/organisms/ToastStack'
 
 function App(): JSX.Element {
   useEffect(() => {
@@ -35,6 +36,7 @@ function App(): JSX.Element {
         </div>
       </main>
       <SettingsModal />
+      <ToastStack />
     </div>
   )
 }
