@@ -61,7 +61,9 @@ function ReferenceImagePanel(): JSX.Element {
   const addColor = usePaletteStore((state) => state.addColor)
 
   const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isPicking, setIsPicking] = useState(false)
+  const [isPanning, setIsPanning] = useState(false)
   const [loupeVisible, setLoupeVisible] = useState(false)
   const [loupe, setLoupe] = useState<{ clientX: number; clientY: number; hex: string | null } | null>(
     null
@@ -70,6 +72,9 @@ function ReferenceImagePanel(): JSX.Element {
   const imgRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const loupeTimerRef = useRef<number | null>(null)
+  const panStartRef = useRef<{ mouseX: number; mouseY: number; panX: number; panY: number } | null>(
+    null
+  )
 
   const clearLoupeTimer = (): void => {
     if (loupeTimerRef.current !== null) {
@@ -78,9 +83,10 @@ function ReferenceImagePanel(): JSX.Element {
     }
   }
 
-  // Reset to 100% and drop the sampling canvas whenever a new image loads.
+  // Reset zoom/pan and drop the sampling canvas whenever a new image loads.
   useEffect(() => {
     setZoom(1)
+    setPan({ x: 0, y: 0 })
     canvasRef.current = null
   }, [url])
 
@@ -140,6 +146,33 @@ function ReferenceImagePanel(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPicking, addColor])
 
+  // Middle-mouse drag to pan. Tracked globally, same reasoning as picking:
+  // the drag can leave the image bounds and should keep following the mouse.
+  useEffect(() => {
+    if (!isPanning) return
+
+    const handleMove = (event: MouseEvent): void => {
+      const start = panStartRef.current
+      if (!start) return
+      setPan({
+        x: start.panX + (event.clientX - start.mouseX),
+        y: start.panY + (event.clientY - start.mouseY)
+      })
+    }
+
+    const handleUp = (): void => {
+      setIsPanning(false)
+      panStartRef.current = null
+    }
+
+    window.addEventListener('mousemove', handleMove)
+    window.addEventListener('mouseup', handleUp)
+    return () => {
+      window.removeEventListener('mousemove', handleMove)
+      window.removeEventListener('mouseup', handleUp)
+    }
+  }, [isPanning])
+
   // Hide the OS cursor for the whole window once the loupe actually shows —
   // a quick click-and-release shouldn't flicker the cursor away.
   useEffect(() => {
@@ -176,6 +209,19 @@ function ReferenceImagePanel(): JSX.Element {
   }
 
   const handleImageMouseDown = (event: ReactMouseEvent<HTMLImageElement>): void => {
+    if (event.button === 1) {
+      // Prevent Chromium's default middle-click auto-scroll mode.
+      event.preventDefault()
+      panStartRef.current = {
+        mouseX: event.clientX,
+        mouseY: event.clientY,
+        panX: pan.x,
+        panY: pan.y
+      }
+      setIsPanning(true)
+      return
+    }
+
     if (event.button !== 0) return
     const img = imgRef.current
     const canvas = canvasRef.current
@@ -224,10 +270,10 @@ function ReferenceImagePanel(): JSX.Element {
           draggable={false}
           onLoad={handleImageLoad}
           onMouseDown={handleImageMouseDown}
-          className={`max-h-full max-w-full select-none object-contain transition-transform duration-75 ease-out ${
-            loupeVisible ? 'cursor-none' : 'cursor-crosshair'
-          }`}
-          style={{ transform: `scale(${zoom})` }}
+          className={`max-h-full max-w-full select-none object-contain ${
+            isPanning ? '' : 'transition-transform duration-75 ease-out'
+          } ${isPanning ? 'cursor-grabbing' : loupeVisible ? 'cursor-none' : 'cursor-crosshair'}`}
+          style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
         />
 
         <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-neutral-600 bg-neutral-900/90 px-2 py-1.5 shadow-lg backdrop-blur">

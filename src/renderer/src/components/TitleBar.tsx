@@ -1,5 +1,15 @@
 import { JSX, useEffect, useState } from 'react'
-import { Minus, Square, Copy, X, FolderOpen, Download, ClipboardCopy, Check } from 'lucide-react'
+import {
+  Minus,
+  Square,
+  Copy,
+  X,
+  FolderOpen,
+  Download,
+  ClipboardCopy,
+  Check,
+  Palette
+} from 'lucide-react'
 import { usePaletteStore } from '@renderer/store/paletteStore'
 import { useImageStore } from '@renderer/store/imageStore'
 import { renderPaletteCanvas, canvasToPngDataUrl, canvasToPngBlob } from '@renderer/lib/exportPalette'
@@ -53,7 +63,7 @@ function TitleBar(): JSX.Element {
       onDoubleClick={() => void windowApi?.toggleMaximize()}
     >
       <div className={`${islandClass} gap-2 px-3`}>
-        <div className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-fuchsia-500 to-sky-500" />
+        <Palette size={16} className="text-violet-400" fill="currentColor" />
         <span className="text-xs font-medium text-neutral-400">color-basket</span>
       </div>
 
@@ -99,7 +109,7 @@ function TitleBar(): JSX.Element {
             type="button"
             aria-label="Minimize"
             onClick={() => void windowApi?.minimize()}
-            className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
           >
             <Minus size={15} />
           </button>
@@ -107,7 +117,7 @@ function TitleBar(): JSX.Element {
             type="button"
             aria-label={isMaximized ? 'Restore' : 'Maximize'}
             onClick={() => void windowApi?.toggleMaximize()}
-            className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
           >
             {isMaximized ? <Copy size={13} /> : <Square size={13} />}
           </button>
@@ -115,7 +125,7 @@ function TitleBar(): JSX.Element {
             type="button"
             aria-label="Close"
             onClick={() => void windowApi?.close()}
-            className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-red-600 hover:text-neutral-100"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-red-600 hover:text-neutral-100"
           >
             <X size={16} />
           </button>
