@@ -35,8 +35,8 @@ function PaletteSwatch({ color, onRemove }: PaletteSwatchProps): JSX.Element {
 
   return (
     <div ref={rootRef} className="flex w-20 flex-col items-center gap-1.5">
-      <div className="group relative h-16 w-16">
-        <ColorDot hex={color.hex} size={64} className="h-16 w-16" />
+      <div className="group relative h-[64px] w-[64px]">
+        <ColorDot hex={color.hex} size={64} />
         <button
           type="button"
           aria-label={`Remove ${color.hex}`}
@@ -60,10 +60,7 @@ function PaletteSwatch({ color, onRemove }: PaletteSwatchProps): JSX.Element {
           {copied ? (
             <Check size={11} className="text-emerald-400" />
           ) : (
-            <Copy
-              size={11}
-              className="opacity-40 transition-opacity group-hover/hex:opacity-100"
-            />
+            <Copy size={11} className="opacity-40 transition-opacity group-hover/hex:opacity-100" />
           )}
         </button>
       </div>
