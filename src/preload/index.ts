@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
 interface OpenedImage {
   path: string
@@ -7,6 +7,9 @@ interface OpenedImage {
 
 const api = {
   openImage: (): Promise<OpenedImage | null> => ipcRenderer.invoke('dialog:openImage'),
+  readImageFile: (filePath: string): Promise<OpenedImage | null> =>
+    ipcRenderer.invoke('fs:readImageFile', filePath),
+  getPathForFile: (file: File): string => webUtils.getPathForFile(file),
   savePaletteDialog: (defaultName: string): Promise<string | null> =>
     ipcRenderer.invoke('dialog:savePalette', defaultName),
   writePaletteImage: (filePath: string, dataUrl: string): Promise<boolean> =>

@@ -1,10 +1,27 @@
-import { JSX, useRef, type MouseEvent as ReactMouseEvent } from 'react'
+import {
+  JSX,
+  useCallback,
+  useRef,
+  useState,
+  type DragEvent as ReactDragEvent,
+  type MouseEvent as ReactMouseEvent
+} from 'react'
+import { animate } from 'animejs'
 import { ImageIcon } from 'lucide-react'
 import { useImageStore } from '@renderer/store/imageStore'
 import { usePaletteStore } from '@renderer/store/paletteStore'
 import { useZoomPan } from '@renderer/hooks/useZoomPan'
 import { useColorPicker } from '@renderer/hooks/useColorPicker'
 import ZoomControl from '../molecules/ZoomControl'
+
+function readFileAsDataUrl(file: File): Promise<string | null> {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null)
+    reader.onerror = () => resolve(null)
+    reader.readAsDataURL(file)
+  })
+}
 
 function ReferenceImagePanel(): JSX.Element {
   const url = useImageStore((state) => state.url)
@@ -13,6 +30,7 @@ function ReferenceImagePanel(): JSX.Element {
 
   const imgRef = useRef<HTMLImageElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
+  const [isDraggingOver, setIsDraggingOver] = useState(false)
 
   const {
     zoom,
@@ -43,6 +61,50 @@ function ReferenceImagePanel(): JSX.Element {
     handlePickMouseDown(event)
   }
 
+  const handleDragOver = (event: ReactDragEvent<HTMLElement>): void => {
+    event.preventDefault()
+    setIsDraggingOver(true)
+  }
+
+  const handleDragLeave = (event: ReactDragEvent<HTMLElement>): void => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setIsDraggingOver(false)
+    }
+  }
+
+  const loadDroppedFile = async (file: File): Promise<void> => {
+    const path = window.api?.getPathForFile(file)
+    if (path) {
+      const image = await window.api.readImageFile(path)
+      if (image) setImage(image)
+      return
+    }
+    const url = await readFileAsDataUrl(file)
+    if (url) setImage({ path: null, url })
+  }
+
+  const handleDrop = (event: ReactDragEvent<HTMLElement>): void => {
+    event.preventDefault()
+    setIsDraggingOver(false)
+    const file = event.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) void loadDroppedFile(file)
+  }
+
+  const dropOverlay = isDraggingOver ? (
+    <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center rounded-2xl border-2 border-dashed border-violet-400/70 bg-black/30">
+      <span className="text-sm font-medium text-ink">Drop to load image</span>
+    </div>
+  ) : null
+
+  const animateLoupe = useCallback((node: HTMLDivElement | null): void => {
+    if (!node) return
+    animate(node, {
+      opacity: [0, 1],
+      duration: 150,
+      ease: 'outQuad'
+    })
+  }, [])
+
   if (url) {
     const cursorClass = isPanning ? 'cursor-grabbing' : loupeStyle ? 'cursor-none' : 'cursor-crosshair'
 
@@ -51,6 +113,9 @@ function ReferenceImagePanel(): JSX.Element {
         ref={sectionRef}
         className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border bg-surface shadow-lg shadow-black/30"
         onWheel={handleWheel}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         <img
           ref={imgRef}
@@ -77,12 +142,14 @@ function ReferenceImagePanel(): JSX.Element {
 
         {loupeStyle && (
           <div
-            className="pointer-events-none fixed z-50 overflow-hidden rounded-full border-4 shadow-2xl"
+            ref={animateLoupe}
+            className="pointer-events-none fixed z-50 overflow-hidden rounded-full border-4 opacity-0 shadow-2xl"
             style={loupeStyle}
           >
             <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white mix-blend-difference" />
           </div>
         )}
+        {dropOverlay}
       </section>
     )
   }
@@ -90,7 +157,10 @@ function ReferenceImagePanel(): JSX.Element {
   return (
     <section
       ref={sectionRef}
-      className="flex flex-1 items-center justify-center rounded-2xl border border-border bg-surface shadow-lg shadow-black/30"
+      className="relative flex flex-1 items-center justify-center rounded-2xl border border-border bg-surface shadow-lg shadow-black/30"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <button
         type="button"
@@ -100,6 +170,7 @@ function ReferenceImagePanel(): JSX.Element {
         <ImageIcon size={40} />
         <span className="text-sm">Click to open a reference image</span>
       </button>
+      {dropOverlay}
     </section>
   )
 }

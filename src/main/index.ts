@@ -66,6 +66,19 @@ function registerWindowControlHandlers(): void {
   })
 }
 
+async function readImageFile(filePath: string): Promise<{ path: string; url: string } | null> {
+  const ext = extname(filePath).slice(1).toLowerCase()
+  if (!IMAGE_MIME_TYPES[ext]) return null
+
+  // A file:// URL won't load as an <img src> when the renderer itself is
+  // served from http://localhost (electron-vite dev server) — Chromium
+  // blocks cross-protocol resource loads. A data URL works in both dev
+  // (http origin) and the packaged app (file origin), so read + inline it.
+  const { readFile } = await import('fs/promises')
+  const buffer = await readFile(filePath)
+  return { path: filePath, url: `data:${IMAGE_MIME_TYPES[ext]};base64,${buffer.toString('base64')}` }
+}
+
 function registerIpcHandlers(): void {
   registerWindowControlHandlers()
 
@@ -76,19 +89,16 @@ function registerIpcHandlers(): void {
       filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
     })
     if (result.canceled || result.filePaths.length === 0) return null
-    const filePath = result.filePaths[0]
+    return readImageFile(result.filePaths[0])
+  })
 
-    // A file:// URL won't load as an <img src> when the renderer itself is
-    // served from http://localhost (electron-vite dev server) — Chromium
-    // blocks cross-protocol resource loads. A data URL works in both dev
-    // (http origin) and the packaged app (file origin), so read + inline it.
-    const { readFile } = await import('fs/promises')
-    const buffer = await readFile(filePath)
-    const ext = extname(filePath).slice(1).toLowerCase()
-    const mime = IMAGE_MIME_TYPES[ext] ?? 'application/octet-stream'
-    const url = `data:${mime};base64,${buffer.toString('base64')}`
-
-    return { path: filePath, url }
+  ipcMain.handle('fs:readImageFile', async (_event, filePath: string) => {
+    if (typeof filePath !== 'string' || !filePath.trim()) return null
+    try {
+      return await readImageFile(filePath)
+    } catch {
+      return null
+    }
   })
 
   ipcMain.handle('dialog:savePalette', async (_event, defaultName: string) => {

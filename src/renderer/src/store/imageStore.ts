@@ -3,7 +3,7 @@ import { create } from 'zustand'
 interface ImageStoreState {
   filePath: string | null
   url: string | null
-  setImage: (image: { path: string; url: string } | null) => void
+  setImage: (image: { path: string | null; url: string } | null) => void
 }
 
 export const useImageStore = create<ImageStoreState>((set) => ({

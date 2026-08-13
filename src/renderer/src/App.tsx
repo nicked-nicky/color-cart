@@ -13,6 +13,14 @@ function App(): JSX.Element {
       delay: stagger(90),
       ease: 'outQuad'
     })
+
+    const preventFileNavigation = (event: DragEvent): void => event.preventDefault()
+    window.addEventListener('dragover', preventFileNavigation)
+    window.addEventListener('drop', preventFileNavigation)
+    return () => {
+      window.removeEventListener('dragover', preventFileNavigation)
+      window.removeEventListener('drop', preventFileNavigation)
+    }
   }, [])
 
   return (

@@ -11,7 +11,7 @@ import type { SourceCoordinates } from '@renderer/types'
 
 const LOUPE_SIZE = 140
 const LOUPE_MAGNIFICATION = 4
-const LOUPE_APPEAR_DELAY_MS = 300
+const LOUPE_APPEAR_DELAY_MS = 100
 
 interface PickedSample {
   hex: string
