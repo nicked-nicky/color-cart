@@ -1,6 +1,12 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
-import { pathToFileURL } from 'url'
+import { join, extname } from 'path'
+
+const IMAGE_MIME_TYPES: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp'
+}
 
 const isDev = !app.isPackaged
 
@@ -71,7 +77,18 @@ function registerIpcHandlers(): void {
     })
     if (result.canceled || result.filePaths.length === 0) return null
     const filePath = result.filePaths[0]
-    return { path: filePath, url: pathToFileURL(filePath).href }
+
+    // A file:// URL won't load as an <img src> when the renderer itself is
+    // served from http://localhost (electron-vite dev server) — Chromium
+    // blocks cross-protocol resource loads. A data URL works in both dev
+    // (http origin) and the packaged app (file origin), so read + inline it.
+    const { readFile } = await import('fs/promises')
+    const buffer = await readFile(filePath)
+    const ext = extname(filePath).slice(1).toLowerCase()
+    const mime = IMAGE_MIME_TYPES[ext] ?? 'application/octet-stream'
+    const url = `data:${mime};base64,${buffer.toString('base64')}`
+
+    return { path: filePath, url }
   })
 
   ipcMain.handle('dialog:savePalette', async (_event, defaultName: string) => {
