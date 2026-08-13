@@ -1,8 +1,10 @@
+import { JSX } from 'react'
 import { ImageIcon, FolderOpen } from 'lucide-react'
 import { useImageStore } from '@renderer/store/imageStore'
 
 function ReferenceImagePanel(): JSX.Element {
-  const { url, setImage } = useImageStore((state) => ({ url: state.url, setImage: state.setImage }))
+  const url = useImageStore((state) => state.url)
+  const setImage = useImageStore((state) => state.setImage)
 
   const handleOpen = async (): Promise<void> => {
     const image = await window.api?.openImage()

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { JSX, useEffect } from 'react'
 import { animate, stagger } from 'animejs'
 import TitleBar from './components/TitleBar'
 import ReferenceImagePanel from './components/ReferenceImagePanel'

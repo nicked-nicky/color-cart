@@ -1,3 +1,4 @@
+import { JSX } from 'react'
 import { Palette, X } from 'lucide-react'
 import { usePaletteStore } from '@renderer/store/paletteStore'
 

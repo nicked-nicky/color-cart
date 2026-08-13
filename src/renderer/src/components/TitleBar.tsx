@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { Minus, Square, Copy, X } from 'lucide-react'
 
 function TitleBar(): JSX.Element {
