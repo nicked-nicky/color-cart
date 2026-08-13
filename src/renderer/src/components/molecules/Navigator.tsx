@@ -67,8 +67,8 @@ function Navigator({ imageUrl, aspectRatio, rect, visible, onPan }: NavigatorPro
     <div
       ref={rootRef}
       onMouseDown={handleMouseDown}
-      className={`absolute bottom-4 right-4 z-30 cursor-pointer overflow-hidden rounded-xl border border-border-subtle shadow-lg backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
-        visible ? 'scale-100 opacity-100' : 'pointer-events-none scale-90 opacity-0'
+      className={`absolute bottom-4 right-4 z-30 origin-bottom-right cursor-pointer overflow-hidden rounded-xl border border-border-subtle shadow-lg will-change-[transform,opacity] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        visible ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
         width,
@@ -78,9 +78,8 @@ function Navigator({ imageUrl, aspectRatio, rect, visible, onPan }: NavigatorPro
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <div className="absolute inset-0 bg-surface/40" />
       <div
-        className="pointer-events-none absolute border-2 border-accent bg-accent/20"
+        className="pointer-events-none absolute rounded-lg border-2 border-accent bg-accent/20"
         style={{
           left: `${rect.left}%`,
           top: `${rect.top}%`,

@@ -1,5 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, systemPreferences } from 'electron'
 import { join, extname } from 'path'
+import icon from '../../resources/icon.png?asset'
 
 const IMAGE_MIME_TYPES: Record<string, string> = {
   png: 'image/png',
@@ -30,6 +31,10 @@ function createWindow(): void {
     minHeight: 640,
     show: false,
     frame: false,
+    // On macOS/Windows the packaged app icon (set via build.icon in
+    // package.json) is used automatically; this only matters for the
+    // window/taskbar icon on Linux.
+    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,

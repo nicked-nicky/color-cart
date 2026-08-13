@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Visual palette generator for digital artists and designers",
   "main": "./out/main/index.js",
-  "author": "Nikita",
+  "author": "nicked-nicky",
   "private": true,
   "type": "module",
   "scripts": {
@@ -51,8 +51,9 @@
     "vite": "^7.0.0"
   },
   "build": {
-    "appId": "com.nikita.colorbasket",
+    "appId": "com.nicked-nicky.colorbasket",
     "productName": "color-basket",
+    "icon": "resources/icon.png",
     "directories": {
       "output": "release"
     },
@@ -75,5 +76,6 @@
     "esbuild@0.28.2": true,
     "electron-winstaller@5.4.0": true,
     "electron@43.4.0": true
-  }
+  },
+  "license": "MIT"
 }

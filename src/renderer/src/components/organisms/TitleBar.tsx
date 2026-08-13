@@ -1,11 +1,16 @@
 import { JSX, useEffect, useState } from 'react'
-import { FolderOpen, Download, ClipboardCopy, Check, Palette, Settings, Sun, Moon } from 'lucide-react'
+import { FolderOpen, Download, ClipboardCopy, Check, Settings, Sun, Moon } from 'lucide-react'
 import { usePaletteStore } from '@renderer/store/paletteStore'
 import { useImageStore } from '@renderer/store/imageStore'
 import { useUiStore } from '@renderer/store/uiStore'
 import { useExportSettingsStore } from '@renderer/store/exportSettingsStore'
 import { useThemeStore } from '@renderer/store/themeStore'
-import { renderPaletteCanvas, canvasToPngDataUrl, canvasToPngBlob } from '@renderer/lib/exportPalette'
+import {
+  renderPaletteCanvas,
+  canvasToPngDataUrl,
+  canvasToPngBlob
+} from '@renderer/lib/exportPalette'
+import iconUrl from '@renderer/assets/icon.png'
 import Island from '../atoms/Island'
 import Button from '../atoms/Button'
 import IconButton from '../atoms/IconButton'
@@ -62,8 +67,12 @@ function TitleBar(): JSX.Element {
       onDoubleClick={() => void windowApi?.toggleMaximize()}
     >
       <Island className="gap-2 border-border bg-surface px-3">
-        <Palette size={16} className="text-ink" />
-        <span className="text-xs font-medium text-ink-faint">color-basket</span>
+        <img
+          src={iconUrl}
+          alt="Color Basket Icon"
+          className={`h-6 w-6 ${theme === 'light' ? 'brightness-0' : ''}`}
+        />
+        <span className="text-xs font-medium text-ink-faint">Color Basket</span>
       </Island>
 
       <div className="flex h-full items-center gap-[10px] [-webkit-app-region:no-drag]">
