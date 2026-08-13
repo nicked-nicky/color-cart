@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type RefObject, type MouseEvent as ReactMouseEvent, type WheelEvent } from 'react'
 
 const MIN_ZOOM = 0.1
-const MAX_ZOOM = 5
-const ZOOM_STEP = 0.1
-const ZOOM_PRESETS = [25, 50, 75, 100, 150, 200, 300, 400]
+const MAX_ZOOM = 10
+const ZOOM_RATE = 0.15
+const ZOOM_PRESETS = [25, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1000]
 /** Minimum px of the image that must stay inside the viewport at all times. */
 const MIN_VISIBLE_PX = 40
 
@@ -71,10 +71,10 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
 
       if (event.key === 'ArrowUp') {
         event.preventDefault()
-        setZoom((z) => clamp(z + ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))
+        setZoom((z) => clamp(z * Math.exp(ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
       } else if (event.key === 'ArrowDown') {
         event.preventDefault()
-        setZoom((z) => clamp(z - ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))
+        setZoom((z) => clamp(z * Math.exp(-ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
       }
     }
 
@@ -117,7 +117,7 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
     if (!img || !section) return
 
     const direction = event.deltaY < 0 ? 1 : -1
-    const nextZoom = clamp(zoom + direction * ZOOM_STEP, MIN_ZOOM, MAX_ZOOM)
+    const nextZoom = clamp(zoom * Math.exp(direction * ZOOM_RATE), MIN_ZOOM, MAX_ZOOM)
     if (nextZoom === zoom) return
 
     // Anchor the zoom to the cursor: work out how far the cursor sits from
@@ -153,8 +153,8 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   }
 
   const setZoomPercent = (percent: number): void => setZoom(clamp(percent / 100, MIN_ZOOM, MAX_ZOOM))
-  const zoomIn = (): void => setZoom((z) => clamp(z + ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))
-  const zoomOut = (): void => setZoom((z) => clamp(z - ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))
+  const zoomIn = (): void => setZoom((z) => clamp(z * Math.exp(ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
+  const zoomOut = (): void => setZoom((z) => clamp(z * Math.exp(-ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
 
   const currentPercent = Math.round(zoom * 100)
   const zoomOptions = Array.from(new Set([...ZOOM_PRESETS, currentPercent])).sort((a, b) => a - b)
