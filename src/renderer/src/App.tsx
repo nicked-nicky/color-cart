@@ -15,7 +15,7 @@ function App(): JSX.Element {
   }, [])
 
   return (
-    <div className="flex h-screen w-screen flex-col gap-[5px] overflow-hidden bg-neutral-950 p-[5px] text-neutral-100">
+    <div className="flex h-screen w-screen flex-col gap-[5px] overflow-hidden bg-neutral-900 p-[5px] text-neutral-100">
       <TitleBar />
       <main className="flex flex-1 gap-[5px] overflow-hidden">
         <div className="panel-animate flex flex-1 opacity-0">

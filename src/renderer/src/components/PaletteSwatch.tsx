@@ -36,34 +36,34 @@ function PaletteSwatch({ color, onRemove }: PaletteSwatchProps): JSX.Element {
     <div ref={rootRef} className="flex w-20 flex-col items-center gap-1.5">
       <div className="group relative h-16 w-16">
         <div
-          className="h-16 w-16 rounded-full border border-neutral-800 shadow-inner"
+          className="h-16 w-16 rounded-full border border-neutral-700 shadow-inner"
           style={{ backgroundColor: color.hex }}
         />
         <button
           type="button"
           aria-label={`Remove ${color.hex}`}
           onClick={() => onRemove(color.id)}
-          className="absolute inset-0 flex items-center justify-center rounded-full bg-neutral-950/60 text-neutral-100 opacity-0 transition-opacity group-hover:opacity-100"
+          className="absolute inset-0 flex items-center justify-center rounded-full bg-neutral-900/60 text-neutral-100 opacity-0 transition-opacity group-hover:opacity-100"
         >
-          <X size={18} />
+          <X size={19} />
         </button>
       </div>
 
       <div className="flex w-full flex-col items-center text-center">
-        <span className="w-full truncate text-[11px] text-neutral-300" title={name}>
+        <span className="w-full truncate text-[12px] text-neutral-300" title={name}>
           {name}
         </span>
         <button
           type="button"
           onClick={() => void handleCopy()}
-          className="group/hex flex items-center gap-1 text-[10px] text-neutral-500 transition-colors hover:text-neutral-300"
+          className="group/hex flex items-center gap-1 text-[11px] text-neutral-500 transition-colors hover:text-neutral-300"
         >
           <span className="underline-offset-2 group-hover/hex:underline">{color.hex}</span>
           {copied ? (
-            <Check size={10} className="text-emerald-400" />
+            <Check size={11} className="text-emerald-400" />
           ) : (
             <Copy
-              size={10}
+              size={11}
               className="opacity-40 transition-opacity group-hover/hex:opacity-100"
             />
           )}

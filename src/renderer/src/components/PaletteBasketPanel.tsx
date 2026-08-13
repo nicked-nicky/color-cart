@@ -9,9 +9,9 @@ function PaletteBasketPanel(): JSX.Element {
   const clear = usePaletteStore((state) => state.clear)
 
   return (
-    <aside className="flex w-80 shrink-0 flex-col gap-3 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-lg shadow-black/30">
+    <aside className="flex w-80 shrink-0 flex-col gap-3 rounded-2xl border border-neutral-700 bg-neutral-800 p-4 shadow-lg shadow-black/30">
       <div className="flex items-center gap-2 text-neutral-300">
-        <Palette size={16} />
+        <Palette size={18} />
         <h2 className="text-sm font-medium">Palette ({colors.length})</h2>
       </div>
 
@@ -31,9 +31,9 @@ function PaletteBasketPanel(): JSX.Element {
         <button
           type="button"
           onClick={clear}
-          className="mt-auto flex items-center justify-center gap-1.5 rounded-full border border-neutral-800 py-1.5 text-xs text-neutral-400 transition-colors hover:border-red-500/60 hover:text-red-400"
+          className="mt-auto flex items-center justify-center gap-1.5 rounded-full border border-neutral-700 py-1.5 text-xs text-neutral-400 transition-colors hover:border-red-500/60 hover:text-red-400"
         >
-          <Trash2 size={13} />
+          <Trash2 size={14} />
           Clear all
         </button>
       )}

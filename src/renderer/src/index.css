@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* Slightly larger base scale — Tailwind's default spacing/sizing/text
+   utilities are rem-based, so this nudges the whole interface (text,
+   padding, swatch/button sizes, etc.) up together in one place. */
+html {
+  font-size: 17px;
+}

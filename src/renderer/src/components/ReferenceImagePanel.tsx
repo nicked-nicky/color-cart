@@ -19,6 +19,7 @@ const ZOOM_PRESETS = [25, 50, 75, 100, 150, 200, 300, 400]
 
 const LOUPE_SIZE = 140
 const LOUPE_MAGNIFICATION = 4
+const LOUPE_APPEAR_DELAY_MS = 300
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
@@ -61,12 +62,21 @@ function ReferenceImagePanel(): JSX.Element {
 
   const [zoom, setZoom] = useState(1)
   const [isPicking, setIsPicking] = useState(false)
+  const [loupeVisible, setLoupeVisible] = useState(false)
   const [loupe, setLoupe] = useState<{ clientX: number; clientY: number; hex: string | null } | null>(
     null
   )
 
   const imgRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const loupeTimerRef = useRef<number | null>(null)
+
+  const clearLoupeTimer = (): void => {
+    if (loupeTimerRef.current !== null) {
+      window.clearTimeout(loupeTimerRef.current)
+      loupeTimerRef.current = null
+    }
+  }
 
   // Reset to 100% and drop the sampling canvas whenever a new image loads.
   useEffect(() => {
@@ -112,7 +122,9 @@ function ReferenceImagePanel(): JSX.Element {
     const handleUp = (event: MouseEvent): void => {
       const img = imgRef.current
       const canvas = canvasRef.current
+      clearLoupeTimer()
       setIsPicking(false)
+      setLoupeVisible(false)
       setLoupe(null)
       if (!img || !canvas) return
       const sample = sampleColorAtPoint(img, canvas, event.clientX, event.clientY)
@@ -125,18 +137,22 @@ function ReferenceImagePanel(): JSX.Element {
       window.removeEventListener('mousemove', handleMove)
       window.removeEventListener('mouseup', handleUp)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPicking, addColor])
 
-  // Hide the OS cursor for the whole window while picking — the loupe is
-  // the cursor while a sample is being taken.
+  // Hide the OS cursor for the whole window once the loupe actually shows —
+  // a quick click-and-release shouldn't flicker the cursor away.
   useEffect(() => {
-    if (!isPicking) return
+    if (!loupeVisible) return
     const previousCursor = document.body.style.cursor
     document.body.style.cursor = 'none'
     return () => {
       document.body.style.cursor = previousCursor
     }
-  }, [isPicking])
+  }, [loupeVisible])
+
+  // Clear any pending appear-timer on unmount.
+  useEffect(() => clearLoupeTimer, [])
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>): void => {
     if (event.deltaY === 0) return
@@ -166,7 +182,10 @@ function ReferenceImagePanel(): JSX.Element {
     if (!img || !canvas) return
     const sample = sampleColorAtPoint(img, canvas, event.clientX, event.clientY)
     setIsPicking(true)
+    setLoupeVisible(false)
     setLoupe({ clientX: event.clientX, clientY: event.clientY, hex: sample?.hex ?? null })
+    clearLoupeTimer()
+    loupeTimerRef.current = window.setTimeout(() => setLoupeVisible(true), LOUPE_APPEAR_DELAY_MS)
   }
 
   if (url) {
@@ -174,7 +193,7 @@ function ReferenceImagePanel(): JSX.Element {
     const options = Array.from(new Set([...ZOOM_PRESETS, currentPercent])).sort((a, b) => a - b)
 
     let loupeStyle: CSSProperties | null = null
-    if (loupe && imgRef.current) {
+    if (loupeVisible && loupe && imgRef.current) {
       const rect = imgRef.current.getBoundingClientRect()
       const bgW = rect.width * LOUPE_MAGNIFICATION
       const bgH = rect.height * LOUPE_MAGNIFICATION
@@ -195,7 +214,7 @@ function ReferenceImagePanel(): JSX.Element {
 
     return (
       <section
-        className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 shadow-lg shadow-black/30"
+        className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl border border-neutral-700 bg-neutral-800 shadow-lg shadow-black/30"
         onWheel={handleWheel}
       >
         <img
@@ -206,28 +225,28 @@ function ReferenceImagePanel(): JSX.Element {
           onLoad={handleImageLoad}
           onMouseDown={handleImageMouseDown}
           className={`max-h-full max-w-full select-none object-contain transition-transform duration-75 ease-out ${
-            isPicking ? 'cursor-none' : 'cursor-crosshair'
+            loupeVisible ? 'cursor-none' : 'cursor-crosshair'
           }`}
           style={{ transform: `scale(${zoom})` }}
         />
 
-        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-neutral-700 bg-neutral-950/90 px-2 py-1.5 shadow-lg backdrop-blur">
+        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-neutral-600 bg-neutral-900/90 px-2 py-1.5 shadow-lg backdrop-blur">
           <button
             type="button"
             aria-label="Zoom out"
             onClick={() => setZoom((z) => clamp(z - ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
           >
-            <Minus size={14} />
+            <Minus size={15} />
           </button>
           <select
             aria-label="Zoom level"
             value={currentPercent}
             onChange={(event) => setZoom(Number(event.target.value) / 100)}
-            className="h-7 rounded-full bg-transparent px-1 text-center text-xs text-neutral-300 outline-none hover:bg-neutral-800 focus:bg-neutral-800"
+            className="h-7 rounded-full bg-transparent px-1 text-center text-xs text-neutral-300 outline-none hover:bg-neutral-700 focus:bg-neutral-700"
           >
             {options.map((percent) => (
-              <option key={percent} value={percent} className="bg-neutral-900 text-neutral-100">
+              <option key={percent} value={percent} className="bg-neutral-800 text-neutral-100">
                 {percent}%
               </option>
             ))}
@@ -236,9 +255,9 @@ function ReferenceImagePanel(): JSX.Element {
             type="button"
             aria-label="Zoom in"
             onClick={() => setZoom((z) => clamp(z + ZOOM_STEP, MIN_ZOOM, MAX_ZOOM))}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
           >
-            <Plus size={14} />
+            <Plus size={15} />
           </button>
         </div>
 
@@ -255,13 +274,13 @@ function ReferenceImagePanel(): JSX.Element {
   }
 
   return (
-    <section className="flex flex-1 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-900 shadow-lg shadow-black/30">
+    <section className="flex flex-1 items-center justify-center rounded-2xl border border-neutral-700 bg-neutral-800 shadow-lg shadow-black/30">
       <button
         type="button"
         onClick={() => void handleOpen()}
-        className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-neutral-700 px-16 py-14 text-neutral-500 transition-colors hover:border-neutral-500 hover:text-neutral-300"
+        className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-neutral-600 px-16 py-14 text-neutral-500 transition-colors hover:border-neutral-500 hover:text-neutral-300"
       >
-        <ImageIcon size={36} />
+        <ImageIcon size={40} />
         <span className="text-sm">Click to open a reference image</span>
       </button>
     </section>

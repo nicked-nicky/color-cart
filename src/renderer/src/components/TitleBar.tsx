@@ -4,7 +4,7 @@ import { usePaletteStore } from '@renderer/store/paletteStore'
 import { useImageStore } from '@renderer/store/imageStore'
 import { renderPaletteCanvas, canvasToPngDataUrl, canvasToPngBlob } from '@renderer/lib/exportPalette'
 
-const islandClass = 'flex h-full items-center rounded-full border border-neutral-800 bg-neutral-900'
+const islandClass = 'flex h-full items-center rounded-full border border-neutral-700 bg-neutral-800'
 
 function TitleBar(): JSX.Element {
   const [isMaximized, setIsMaximized] = useState(false)
@@ -64,21 +64,21 @@ function TitleBar(): JSX.Element {
               type="button"
               aria-label="Export palette as image"
               onClick={() => void handleExportImage()}
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
             >
-              <Download size={13} />
+              <Download size={14} />
               Export
             </button>
             <button
               type="button"
               aria-label="Copy palette image to clipboard"
               onClick={() => void handleCopyToClipboard()}
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
             >
               {copyState === 'copied' ? (
-                <Check size={13} className="text-emerald-400" />
+                <Check size={14} className="text-emerald-400" />
               ) : (
-                <ClipboardCopy size={13} />
+                <ClipboardCopy size={14} />
               )}
               {copyState === 'copied' ? 'Copied' : 'Copy'}
             </button>
@@ -88,9 +88,9 @@ function TitleBar(): JSX.Element {
         <button
           type="button"
           onClick={() => void handleOpenImage()}
-          className={`${islandClass} gap-1.5 px-3 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-neutral-100`}
+          className={`${islandClass} gap-1.5 px-3 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100`}
         >
-          <FolderOpen size={13} />
+          <FolderOpen size={14} />
           {hasImage ? 'Choose another picture' : 'Choose a picture'}
         </button>
 
@@ -99,17 +99,17 @@ function TitleBar(): JSX.Element {
             type="button"
             aria-label="Minimize"
             onClick={() => void windowApi?.minimize()}
-            className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+            className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
           >
-            <Minus size={14} />
+            <Minus size={15} />
           </button>
           <button
             type="button"
             aria-label={isMaximized ? 'Restore' : 'Maximize'}
             onClick={() => void windowApi?.toggleMaximize()}
-            className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+            className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
           >
-            {isMaximized ? <Copy size={12} /> : <Square size={12} />}
+            {isMaximized ? <Copy size={13} /> : <Square size={13} />}
           </button>
           <button
             type="button"
@@ -117,7 +117,7 @@ function TitleBar(): JSX.Element {
             onClick={() => void windowApi?.close()}
             className="flex h-7 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-red-600 hover:text-neutral-100"
           >
-            <X size={15} />
+            <X size={16} />
           </button>
         </div>
       </div>
