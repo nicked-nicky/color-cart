@@ -1,0 +1,73 @@
+{
+  "name": "color-basket",
+  "version": "0.1.0",
+  "description": "Visual palette generator for digital artists and designers",
+  "main": "./out/main/index.js",
+  "author": "Nikita",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "echo \"no tests yet\" && exit 0",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux"
+  },
+  "dependencies": {
+    "animejs": "^4.5.0",
+    "colorjs.io": "^0.7.1",
+    "lucide-react": "^1.31.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@eslint/js": "^10.0.0",
+    "globals": "^15.15.0",
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.7",
+    "electron-vite": "^5.0.0",
+    "eslint": "^10.8.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.4",
+    "postcss": "^8.5.26",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.3",
+    "vite": "^7.0.0"
+  },
+  "build": {
+    "appId": "com.nikita.colorbasket",
+    "productName": "color-basket",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.graphics-design"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
