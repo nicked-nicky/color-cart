@@ -62,7 +62,7 @@ function TitleBar(): JSX.Element {
       onDoubleClick={() => void windowApi?.toggleMaximize()}
     >
       <Island className="gap-2 border-border bg-surface px-3">
-        <Palette size={16} className="text-violet-400" fill="currentColor" />
+        <Palette size={16} className="text-ink" />
         <span className="text-xs font-medium text-ink-faint">color-basket</span>
       </Island>
 
