@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import Color from 'colorjs.io'
 import type { PaletteColor, SourceCoordinates } from '@renderer/types'
 
-const DUPLICATE_THRESHOLD_DELTA_E = 3
+const DUPLICATE_THRESHOLD_DELTA_E = 1
 
 interface PaletteState {
   colors: PaletteColor[]
