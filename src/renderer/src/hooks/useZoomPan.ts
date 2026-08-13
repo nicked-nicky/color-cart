@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type RefObject, type MouseEvent as ReactMouseEvent, type WheelEvent } from 'react'
+import { useNavigatorSettingsStore } from '@renderer/store/navigatorSettingsStore'
 
 const MIN_ZOOM = 0.1
 const MAX_ZOOM = 10
@@ -6,9 +7,6 @@ const ZOOM_RATE = 0.15
 const ZOOM_PRESETS = [25, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1000]
 /** Minimum px of the image that must stay inside the viewport at all times. */
 const MIN_VISIBLE_PX = 40
-/** The minimap navigator only shows up once you're zoomed in enough that
- *  finding your way back around the image actually gets hard. */
-const NAVIGATOR_MIN_PERCENT = 500
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
@@ -57,9 +55,9 @@ interface UseZoomPanOptions {
 /**
  * Owns zoom/pan state for the reference image: wheel-to-zoom (anchored to
  * the cursor position so the point under it stays put), arrow-key zoom,
- * middle-mouse drag-to-pan, double-click-to-fit, and the data a minimap
- * navigator needs once you're zoomed in far enough to get lost — all with
- * pan clamped so the image can't disappear off the edge of the viewport.
+ * middle-mouse drag-to-pan, and the data a minimap navigator needs once
+ * you're zoomed in far enough to get lost — all with pan clamped so the
+ * image can't disappear off the edge of the viewport.
  */
 export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions): {
   zoom: number
@@ -74,9 +72,11 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   setZoomPercent: (percent: number) => void
   zoomIn: () => void
   zoomOut: () => void
-  zoomToFit: () => void
   panToImageFraction: (fractionX: number, fractionY: number) => void
 } {
+  const navigatorThresholdPercent = useNavigatorSettingsStore(
+    (state) => state.values.appearThresholdPercent
+  )
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState<Pan>({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
@@ -205,10 +205,6 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   const setZoomPercent = (percent: number): void => setZoom(clamp(percent / 100, MIN_ZOOM, MAX_ZOOM))
   const zoomIn = (): void => setZoom((z) => clamp(z * Math.exp(ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
   const zoomOut = (): void => setZoom((z) => clamp(z * Math.exp(-ZOOM_RATE), MIN_ZOOM, MAX_ZOOM))
-  const zoomToFit = (): void => {
-    setZoom(1)
-    setPan({ x: 0, y: 0 })
-  }
 
   /** Recenters the view on a point given as a 0-1 fraction of the image — what a minimap click/drag reports. */
   const panToImageFraction = (fractionX: number, fractionY: number): void => {
@@ -226,7 +222,7 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
   const zoomOptions = Array.from(new Set([...ZOOM_PRESETS, currentPercent])).sort((a, b) => a - b)
 
   let navigatorRect: NavigatorRect | null = null
-  if (baseSize && sectionSize && currentPercent > NAVIGATOR_MIN_PERCENT) {
+  if (baseSize && sectionSize && currentPercent > navigatorThresholdPercent) {
     const halfW = (baseSize.width * zoom) / 2
     const halfH = (baseSize.height * zoom) / 2
     const imgLeft = pan.x - halfW
@@ -264,7 +260,6 @@ export function useZoomPan({ imgRef, sectionRef, imageUrl }: UseZoomPanOptions):
     setZoomPercent,
     zoomIn,
     zoomOut,
-    zoomToFit,
     panToImageFraction
   }
 }

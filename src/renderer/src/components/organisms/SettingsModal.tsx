@@ -1,21 +1,27 @@
 import { JSX, useEffect, useRef, useState } from 'react'
 import { animate } from 'animejs'
-import { ImageIcon, X } from 'lucide-react'
+import { ImageIcon, X, SlidersHorizontal, Compass, SunMoon } from 'lucide-react'
 import { useUiStore } from '@renderer/store/uiStore'
 import SettingsNavItem from '../molecules/SettingsNavItem'
 import IconButton from '../atoms/IconButton'
+import GeneralSettingsCategory from './GeneralSettingsCategory'
+import NavigatorSettingsCategory from './NavigatorSettingsCategory'
 import ExportSettingsCategory from './ExportSettingsCategory'
+import ThemeSettingsCategory from './ThemeSettingsCategory'
 
-type SettingsCategory = 'export-image'
+type SettingsCategory = 'general' | 'navigator' | 'export-image' | 'theme'
 
 const CATEGORIES: Array<{ id: SettingsCategory; label: string; icon: JSX.Element }> = [
-  { id: 'export-image', label: 'Export Image', icon: <ImageIcon size={16} /> }
+  { id: 'general', label: 'General', icon: <SlidersHorizontal size={16} /> },
+  { id: 'navigator', label: 'Navigator', icon: <Compass size={16} /> },
+  { id: 'export-image', label: 'Export Image', icon: <ImageIcon size={16} /> },
+  { id: 'theme', label: 'Theme', icon: <SunMoon size={16} /> }
 ]
 
 function SettingsModal(): JSX.Element | null {
   const isOpen = useUiStore((state) => state.isSettingsOpen)
   const closeSettings = useUiStore((state) => state.closeSettings)
-  const [activeCategory, setActiveCategory] = useState<SettingsCategory>('export-image')
+  const [activeCategory, setActiveCategory] = useState<SettingsCategory>('general')
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -71,8 +77,11 @@ function SettingsModal(): JSX.Element | null {
           ))}
         </nav>
 
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex flex-1 overflow-hidden p-5">
+          {activeCategory === 'general' && <GeneralSettingsCategory />}
+          {activeCategory === 'navigator' && <NavigatorSettingsCategory />}
           {activeCategory === 'export-image' && <ExportSettingsCategory />}
+          {activeCategory === 'theme' && <ThemeSettingsCategory />}
         </div>
       </div>
     </div>

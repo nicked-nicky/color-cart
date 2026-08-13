@@ -8,15 +8,9 @@ import {
   type SyntheticEvent
 } from 'react'
 import type { SourceCoordinates } from '@renderer/types'
+import { useGeneralSettingsStore } from '@renderer/store/generalSettingsStore'
 
 const LOUPE_SIZE = 140
-const LOUPE_MAGNIFICATION = 4
-const LOUPE_APPEAR_DELAY_MS = 100
-/** Cap on the offscreen sampling canvas's longest side, in px. Large source
- *  photos (e.g. 8000x6000) don't need to be rasterized at full resolution
- *  just to read a pixel color back out — that's a lot of memory and a slow
- *  drawImage for no visible benefit. */
-const MAX_SAMPLING_DIMENSION = 2048
 
 interface PickedSample {
   hex: string
@@ -54,11 +48,12 @@ function computeLoupeStyle(
   imageUrl: string,
   clientX: number,
   clientY: number,
-  hex: string | null
+  hex: string | null,
+  magnification: number
 ): CSSProperties {
   const rect = img.getBoundingClientRect()
-  const bgW = rect.width * LOUPE_MAGNIFICATION
-  const bgH = rect.height * LOUPE_MAGNIFICATION
+  const bgW = rect.width * magnification
+  const bgH = rect.height * magnification
   const fx = (clientX - rect.left) / rect.width
   const fy = (clientY - rect.top) / rect.height
   return {
@@ -92,6 +87,10 @@ export function useColorPicker({ imgRef, imageUrl, onPick }: UseColorPickerOptio
   handleImageLoad: (event: SyntheticEvent<HTMLImageElement>) => void
   handlePickMouseDown: (event: ReactMouseEvent<HTMLImageElement>) => boolean
 } {
+  const loupeMagnification = useGeneralSettingsStore((state) => state.values.loupeMagnification)
+  const loupeDelayMs = useGeneralSettingsStore((state) => state.values.loupeDelayMs)
+  const maxSamplingDimension = useGeneralSettingsStore((state) => state.values.maxSamplingDimension)
+
   const [isPicking, setIsPicking] = useState(false)
   const [loupeVisible, setLoupeVisible] = useState(false)
   const [loupeStyle, setLoupeStyle] = useState<CSSProperties | null>(null)
@@ -121,7 +120,9 @@ export function useColorPicker({ imgRef, imageUrl, onPick }: UseColorPickerOptio
       if (!img || !canvas) return
       const sample = sampleColorAtPoint(img, canvas, event.clientX, event.clientY)
       if (imageUrl) {
-        setLoupeStyle(computeLoupeStyle(img, imageUrl, event.clientX, event.clientY, sample?.hex ?? null))
+        setLoupeStyle(
+          computeLoupeStyle(img, imageUrl, event.clientX, event.clientY, sample?.hex ?? null, loupeMagnification)
+        )
       }
     }
 
@@ -144,7 +145,7 @@ export function useColorPicker({ imgRef, imageUrl, onPick }: UseColorPickerOptio
       window.removeEventListener('mouseup', handleUp)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPicking, onPick, imageUrl])
+  }, [isPicking, onPick, imageUrl, loupeMagnification])
 
   // Hide the OS cursor for the whole window once the loupe actually shows —
   // a quick click-and-release shouldn't flicker the cursor away.
@@ -162,7 +163,7 @@ export function useColorPicker({ imgRef, imageUrl, onPick }: UseColorPickerOptio
 
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>): void => {
     const img = event.currentTarget
-    const scale = Math.min(1, MAX_SAMPLING_DIMENSION / Math.max(img.naturalWidth, img.naturalHeight))
+    const scale = Math.min(1, maxSamplingDimension / Math.max(img.naturalWidth, img.naturalHeight))
     const canvas = document.createElement('canvas')
     canvas.width = Math.max(1, Math.round(img.naturalWidth * scale))
     canvas.height = Math.max(1, Math.round(img.naturalHeight * scale))
@@ -186,10 +187,12 @@ export function useColorPicker({ imgRef, imageUrl, onPick }: UseColorPickerOptio
     setIsPicking(true)
     setLoupeVisible(false)
     if (imageUrl) {
-      setLoupeStyle(computeLoupeStyle(img, imageUrl, event.clientX, event.clientY, sample?.hex ?? null))
+      setLoupeStyle(
+        computeLoupeStyle(img, imageUrl, event.clientX, event.clientY, sample?.hex ?? null, loupeMagnification)
+      )
     }
     clearLoupeTimer()
-    loupeTimerRef.current = window.setTimeout(() => setLoupeVisible(true), LOUPE_APPEAR_DELAY_MS)
+    loupeTimerRef.current = window.setTimeout(() => setLoupeVisible(true), loupeDelayMs)
     return true
   }
 

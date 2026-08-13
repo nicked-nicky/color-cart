@@ -13,7 +13,6 @@ import { usePaletteStore } from '@renderer/store/paletteStore'
 import { useToastStore } from '@renderer/store/toastStore'
 import { useZoomPan } from '@renderer/hooks/useZoomPan'
 import { useColorPicker } from '@renderer/hooks/useColorPicker'
-import type { SourceCoordinates } from '@renderer/types'
 import ZoomControl from '../molecules/ZoomControl'
 import Navigator from '../molecules/Navigator'
 
@@ -30,12 +29,10 @@ function ReferenceImagePanel(): JSX.Element {
   const url = useImageStore((state) => state.url)
   const setImage = useImageStore((state) => state.setImage)
   const addColor = usePaletteStore((state) => state.addColor)
-  const removeColor = usePaletteStore((state) => state.removeColor)
   const pushToast = useToastStore((state) => state.pushToast)
 
   const imgRef = useRef<HTMLImageElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
-  const lastPickedIdRef = useRef<string | null>(null)
   const [isDraggingOver, setIsDraggingOver] = useState(false)
 
   const {
@@ -51,19 +48,13 @@ function ReferenceImagePanel(): JSX.Element {
     setZoomPercent,
     zoomIn,
     zoomOut,
-    zoomToFit,
     panToImageFraction
   } = useZoomPan({ imgRef, sectionRef, imageUrl: url })
-
-  const handlePick = (hex: string, coordinates: SourceCoordinates): void => {
-    const result = addColor(hex, coordinates)
-    lastPickedIdRef.current = result.added && result.id ? result.id : null
-  }
 
   const { loupeStyle, handleImageLoad, handlePickMouseDown } = useColorPicker({
     imgRef,
     imageUrl: url,
-    onPick: handlePick
+    onPick: addColor
   })
 
   const handleOpen = async (): Promise<void> => {
@@ -72,20 +63,6 @@ function ReferenceImagePanel(): JSX.Element {
   }
 
   const handleImageMouseDown = (event: ReactMouseEvent<HTMLImageElement>): void => {
-    // The first click of a double-click already completes its own full
-    // pick cycle (mousedown -> mouseup -> addColor) before this second
-    // mousedown ever fires, since a real double-click is two full click
-    // cycles in sequence. So by the time we see detail >= 2 here, that
-    // color has already landed — undo it, since a double-click means
-    // "fit the view," not "pick twice."
-    if (event.detail >= 2) {
-      if (lastPickedIdRef.current) {
-        removeColor(lastPickedIdRef.current)
-        lastPickedIdRef.current = null
-      }
-      zoomToFit()
-      return
-    }
     if (handlePanMouseDown(event)) return
     handlePickMouseDown(event)
   }
@@ -127,7 +104,7 @@ function ReferenceImagePanel(): JSX.Element {
   }
 
   const dropOverlay = isDraggingOver ? (
-    <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center rounded-2xl border-2 border-dashed border-violet-400/70 bg-black/30">
+    <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center rounded-2xl border-2 border-dashed border-accent/70 bg-black/30">
       <span className="text-sm font-medium text-ink">Drop to load image</span>
     </div>
   ) : null

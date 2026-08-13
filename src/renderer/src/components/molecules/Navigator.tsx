@@ -1,4 +1,6 @@
 import { JSX, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
+import { animate } from 'animejs'
+import { useNavigatorSettingsStore } from '@renderer/store/navigatorSettingsStore'
 
 interface NavigatorRect {
   left: number
@@ -17,15 +19,28 @@ interface NavigatorProps {
   onPan: (fractionX: number, fractionY: number) => void
 }
 
-const MAX_DIMENSION = 130
 const MIN_DIMENSION = 70
 
 function Navigator({ imageUrl, aspectRatio, rect, onPan }: NavigatorProps): JSX.Element {
+  const maxDimension = useNavigatorSettingsStore((state) => state.values.size)
   const rootRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
-  const width = aspectRatio >= 1 ? MAX_DIMENSION : Math.max(MIN_DIMENSION, MAX_DIMENSION * aspectRatio)
-  const height = aspectRatio >= 1 ? Math.max(MIN_DIMENSION, MAX_DIMENSION / aspectRatio) : MAX_DIMENSION
+  const width = aspectRatio >= 1 ? maxDimension : Math.max(MIN_DIMENSION, maxDimension * aspectRatio)
+  const height = aspectRatio >= 1 ? Math.max(MIN_DIMENSION, maxDimension / aspectRatio) : maxDimension
+
+  // Mount-only entrance — this component unmounts/remounts every time zoom
+  // crosses the appearance threshold, so this fires exactly on each
+  // appearance, not on every rect/size update.
+  useEffect(() => {
+    if (!rootRef.current) return
+    animate(rootRef.current, {
+      opacity: [0, 1],
+      scale: [0.85, 1],
+      duration: 220,
+      ease: 'outQuad'
+    })
+  }, [])
 
   const panFromEvent = (clientX: number, clientY: number): void => {
     const node = rootRef.current
@@ -62,7 +77,7 @@ function Navigator({ imageUrl, aspectRatio, rect, onPan }: NavigatorProps): JSX.
     <div
       ref={rootRef}
       onMouseDown={handleMouseDown}
-      className="absolute bottom-4 right-4 z-30 cursor-pointer overflow-hidden rounded-xl border border-border-subtle shadow-lg backdrop-blur"
+      className="absolute bottom-4 right-4 z-30 cursor-pointer overflow-hidden rounded-xl border border-border-subtle opacity-0 shadow-lg backdrop-blur"
       style={{
         width,
         height,
@@ -73,7 +88,7 @@ function Navigator({ imageUrl, aspectRatio, rect, onPan }: NavigatorProps): JSX.
     >
       <div className="absolute inset-0 bg-surface/40" />
       <div
-        className="pointer-events-none absolute border-2 border-violet-400 bg-violet-400/20"
+        className="pointer-events-none absolute border-2 border-accent bg-accent/20"
         style={{
           left: `${rect.left}%`,
           top: `${rect.top}%`,

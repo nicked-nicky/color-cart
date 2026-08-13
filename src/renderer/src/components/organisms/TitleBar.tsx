@@ -20,7 +20,7 @@ function TitleBar(): JSX.Element {
   const hasImage = useImageStore((state) => state.url !== null)
   const setImage = useImageStore((state) => state.setImage)
   const openSettings = useUiStore((state) => state.openSettings)
-  const exportOptions = useExportSettingsStore((state) => state.options)
+  const exportOptions = useExportSettingsStore((state) => state.values)
   const theme = useThemeStore((state) => state.theme)
   const toggleTheme = useThemeStore((state) => state.toggleTheme)
   const hasColors = colors.length > 0

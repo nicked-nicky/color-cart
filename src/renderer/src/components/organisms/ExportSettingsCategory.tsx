@@ -2,16 +2,12 @@ import { JSX, useMemo } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { usePaletteStore } from '@renderer/store/paletteStore'
 import { useExportSettingsStore } from '@renderer/store/exportSettingsStore'
-import {
-  renderPaletteCanvas,
-  canvasToPngDataUrl,
-  type PaletteExportOrientation,
-  type PaletteExportShape
-} from '@renderer/lib/exportPalette'
+import { renderPaletteCanvas, canvasToPngDataUrl, type PaletteExportOrientation } from '@renderer/lib/exportPalette'
 import type { PaletteColor } from '@renderer/types'
 import NumberField from '../atoms/NumberField'
 import SegmentedControl from '../atoms/SegmentedControl'
 import Button from '../atoms/Button'
+import ShapeSelector from '../molecules/ShapeSelector'
 
 const SAMPLE_HEXES = [
   '#ef4444',
@@ -37,12 +33,6 @@ const SAMPLE_COLORS: PaletteColor[] = SAMPLE_HEXES.map((hex, index) => ({
   sourceCoordinates: null
 }))
 
-const SHAPE_OPTIONS: { value: PaletteExportShape; ariaLabel: string; preview: JSX.Element }[] = [
-  { value: 'oval', ariaLabel: 'Oval', preview: <div className="h-3 w-5 rounded-full bg-current" /> },
-  { value: 'circle', ariaLabel: 'Circle', preview: <div className="h-4 w-4 rounded-full bg-current" /> },
-  { value: 'square', ariaLabel: 'Square', preview: <div className="h-4 w-4 rounded-sm bg-current" /> }
-]
-
 // Deliberately fixed regardless of theme — a checkerboard is the universal
 // convention for "transparent" and shouldn't shift with light/dark.
 const CHECKERBOARD_STYLE = {
@@ -55,7 +45,7 @@ const CHECKERBOARD_STYLE = {
 
 function ExportSettingsCategory(): JSX.Element {
   const realColors = usePaletteStore((state) => state.colors)
-  const options = useExportSettingsStore((state) => state.options)
+  const options = useExportSettingsStore((state) => state.values)
   const update = useExportSettingsStore((state) => state.update)
   const reset = useExportSettingsStore((state) => state.reset)
 
@@ -88,15 +78,7 @@ function ExportSettingsCategory(): JSX.Element {
         />
 
         <div className="mb-1 mt-3 text-xs font-medium text-ink-faint">Shape</div>
-        <SegmentedControl<PaletteExportShape>
-          options={SHAPE_OPTIONS.map(({ value, ariaLabel, preview }) => ({
-            value,
-            ariaLabel,
-            label: preview
-          }))}
-          value={options.shape}
-          onChange={(shape) => update({ shape })}
-        />
+        <ShapeSelector value={options.shape} onChange={(shape) => update({ shape })} />
 
         <div className="mt-3 divide-y divide-border/60">
           <NumberField
@@ -107,7 +89,7 @@ function ExportSettingsCategory(): JSX.Element {
             max={50}
           />
           <NumberField
-            label={options.shape === 'square' ? 'Width' : 'Oval width'}
+            label="Width"
             value={options.ovalWidth}
             onChange={(ovalWidth) => update({ ovalWidth })}
             min={10}
@@ -115,12 +97,21 @@ function ExportSettingsCategory(): JSX.Element {
             suffix="px"
           />
           <NumberField
-            label={options.shape === 'square' ? 'Height' : 'Oval height'}
+            label="Height"
             value={options.ovalHeight}
             onChange={(ovalHeight) => update({ ovalHeight })}
             min={10}
             max={400}
             suffix="px"
+          />
+          <NumberField
+            label="Rotation"
+            value={options.rotationDeg}
+            onChange={(rotationDeg) => update({ rotationDeg })}
+            min={-180}
+            max={180}
+            step={5}
+            suffix="°"
           />
           <NumberField
             label="Item gap"

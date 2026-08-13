@@ -1,15 +1,11 @@
 import { create } from 'zustand'
 import Color from 'colorjs.io'
 import type { PaletteColor, SourceCoordinates } from '@renderer/types'
-
-const DUPLICATE_THRESHOLD_DELTA_E = 1
+import { useGeneralSettingsStore } from '@renderer/store/generalSettingsStore'
 
 interface PaletteState {
   colors: PaletteColor[]
-  addColor: (
-    hex: string,
-    sourceCoordinates?: SourceCoordinates
-  ) => { added: boolean; id?: string; duplicateOf?: string }
+  addColor: (hex: string, sourceCoordinates?: SourceCoordinates) => { added: boolean; duplicateOf?: string }
   removeColor: (id: string) => void
   reorderColors: (fromIndex: number, toIndex: number) => void
   clear: () => void
@@ -34,7 +30,8 @@ function deltaE(hexA: string, hexB: string): number {
 export const usePaletteStore = create<PaletteState>((set, get) => ({
   colors: [],
   addColor: (hex, sourceCoordinates) => {
-    const existing = get().colors.find((c) => deltaE(c.hex, hex) <= DUPLICATE_THRESHOLD_DELTA_E)
+    const threshold = useGeneralSettingsStore.getState().values.duplicateDeltaE
+    const existing = get().colors.find((c) => deltaE(c.hex, hex) <= threshold)
     if (existing) return { added: false, duplicateOf: existing.id }
 
     const newColor: PaletteColor = {
@@ -46,7 +43,7 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
       sourceCoordinates: sourceCoordinates ?? null
     }
     set((state) => ({ colors: [...state.colors, newColor] }))
-    return { added: true, id: newColor.id }
+    return { added: true }
   },
   removeColor: (id) => set((state) => ({ colors: state.colors.filter((c) => c.id !== id) })),
   reorderColors: (fromIndex, toIndex) =>
