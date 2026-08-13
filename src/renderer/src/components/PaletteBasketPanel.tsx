@@ -1,10 +1,12 @@
 import { JSX } from 'react'
-import { Palette, X } from 'lucide-react'
+import { Palette, Trash2 } from 'lucide-react'
 import { usePaletteStore } from '@renderer/store/paletteStore'
+import PaletteSwatch from './PaletteSwatch'
 
 function PaletteBasketPanel(): JSX.Element {
   const colors = usePaletteStore((state) => state.colors)
   const removeColor = usePaletteStore((state) => state.removeColor)
+  const clear = usePaletteStore((state) => state.clear)
 
   return (
     <aside className="flex w-80 shrink-0 flex-col gap-3 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-lg shadow-black/30">
@@ -15,31 +17,25 @@ function PaletteBasketPanel(): JSX.Element {
 
       {colors.length === 0 ? (
         <p className="mt-2 text-xs text-neutral-600">
-          Pick colors from the reference image to add them here.
+          Click and hold on the reference image to pick a color.
         </p>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {colors.map((color) => (
-            <div
-              key={color.id}
-              className="group relative h-16 w-16 overflow-hidden rounded-xl border border-neutral-800"
-              style={{ backgroundColor: color.hex }}
-              title={color.hex}
-            >
-              <button
-                type="button"
-                aria-label={`Remove ${color.hex}`}
-                onClick={() => removeColor(color.id)}
-                className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-950/70 text-neutral-200 opacity-0 transition-opacity group-hover:opacity-100"
-              >
-                <X size={10} />
-              </button>
-              <span className="absolute bottom-1 left-1 rounded-full bg-neutral-950/70 px-1.5 text-[10px] leading-tight text-neutral-200">
-                {color.hex}
-              </span>
-            </div>
+            <PaletteSwatch key={color.id} color={color} onRemove={removeColor} />
           ))}
         </div>
+      )}
+
+      {colors.length > 0 && (
+        <button
+          type="button"
+          onClick={clear}
+          className="mt-auto flex items-center justify-center gap-1.5 rounded-full border border-neutral-800 py-1.5 text-xs text-neutral-400 transition-colors hover:border-red-500/60 hover:text-red-400"
+        >
+          <Trash2 size={13} />
+          Clear all
+        </button>
       )}
     </aside>
   )
