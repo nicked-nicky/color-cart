@@ -5,7 +5,7 @@ function ReferenceImagePanel(): JSX.Element {
   const { url, setImage } = useImageStore((state) => ({ url: state.url, setImage: state.setImage }))
 
   const handleOpen = async (): Promise<void> => {
-    const image = await window.api.openImage()
+    const image = await window.api?.openImage()
     if (image) setImage(image)
   }
 
