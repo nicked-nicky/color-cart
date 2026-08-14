@@ -46,7 +46,7 @@ function TitleBar(): JSX.Element {
     if (!window.api || colors.length === 0) return
     const canvas = renderPaletteCanvas(colors, exportOptions)
     const dataUrl = canvasToPngDataUrl(canvas)
-    const filePath = await window.api.savePaletteDialog('color-basket-palette.png')
+    const filePath = await window.api.savePaletteDialog('color-cart-palette.png')
     if (!filePath) return
     await window.api.writePaletteImage(filePath, dataUrl)
   }
@@ -69,10 +69,10 @@ function TitleBar(): JSX.Element {
       <Island className="gap-2 border-border bg-surface px-3">
         <img
           src={iconUrl}
-          alt="Color Basket Icon"
+          alt="Color Cart Icon"
           className={`h-6 w-6 ${theme === 'light' ? 'brightness-0' : ''}`}
         />
-        <span className="text-xs font-medium text-ink-faint">Color Basket</span>
+        <span className="text-xs font-medium text-ink-faint">Color Cart</span>
       </Island>
 
       <div className="flex h-full items-center gap-[10px] [-webkit-app-region:no-drag]">

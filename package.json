@@ -1,6 +1,6 @@
 {
-  "name": "color-basket",
-  "version": "0.1.0",
+  "name": "color-cart",
+  "version": "1.0.1",
   "description": "Visual palette generator for digital artists and designers",
   "main": "./out/main/index.js",
   "author": "nicked-nicky",
@@ -51,8 +51,8 @@
     "vite": "^7.0.0"
   },
   "build": {
-    "appId": "com.nicked-nicky.colorbasket",
-    "productName": "color-basket",
+    "appId": "com.nicked-nicky.colorcart",
+    "productName": "color-cart",
     "icon": "resources/icon.png",
     "directories": {
       "output": "release"
@@ -77,5 +77,9 @@
     "electron-winstaller@5.4.0": true,
     "electron@43.4.0": true
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/nicked-nicky/color-cart.git"
+  }
 }
