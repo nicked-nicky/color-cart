@@ -1,0 +1,24 @@
+.loupe {
+  position: fixed;
+  z-index: 50;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: calc(var(--stella-border-width) * 2) solid var(--stella-border-3);
+  border-radius: 50%;
+  box-shadow: var(--stella-shadow-xl);
+  pointer-events: none;
+  animation: var(--stella-appear-animation);
+}
+
+.reticle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--stella-space-2);
+  height: var(--stella-space-2);
+  box-sizing: border-box;
+  border: 1px solid white;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+}

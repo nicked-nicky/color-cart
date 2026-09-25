@@ -1,0 +1,48 @@
+.field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stella-space-2);
+  min-height: var(--stella-size-sm);
+  padding: 0 var(--stella-space-3) 0 var(--stella-space-1);
+  box-sizing: border-box;
+  border: var(--stella-border-width) solid var(--stella-g-border-0);
+  border-radius: var(--stella-radius-panel);
+  background-color: var(--stella-g-surface-0);
+  cursor: pointer;
+  transition:
+    background-color var(--stella-motion-fast) var(--stella-easing-out),
+    border-color var(--stella-motion-fast) var(--stella-easing-out);
+}
+
+.field:hover {
+  background-color: var(--stella-g-surface-1);
+  border-color: var(--stella-g-border-1);
+}
+
+.field:has(.input:focus-visible) {
+  outline: var(--stella-border-width) solid var(--stella-focus);
+  outline-offset: var(--stella-border-width);
+}
+
+.field[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disc {
+  width: var(--stella-size-xs);
+  height: var(--stella-size-xs);
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  cursor: inherit;
+}

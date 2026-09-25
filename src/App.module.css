@@ -1,0 +1,10 @@
+.app {
+  height: 100vh;
+  padding: var(--stella-space-2);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.workspace {
+  min-height: 0;
+}

@@ -1,0 +1,29 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--stella-space-4);
+  padding: var(--stella-space-3) 0;
+}
+
+.row + .row {
+  border-top: var(--stella-border-width) solid var(--stella-g-border-1);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stella-space-1);
+  min-width: 0;
+}
+
+.description {
+  margin: 0;
+}
+
+.control {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  min-width: calc(var(--stella-size-xl) * 4);
+}

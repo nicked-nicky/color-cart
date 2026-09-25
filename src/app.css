@@ -1,0 +1,14 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background-color: var(--stella-surface-0);
+  color: var(--stella-text-0);
+  font-family: var(--stella-font-ui);
+  -webkit-font-smoothing: antialiased;
+}

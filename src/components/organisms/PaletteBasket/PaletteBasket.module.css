@@ -1,0 +1,26 @@
+.basket {
+  width: calc(var(--stella-size-xl) * 6.5);
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.content {
+  min-width: 0;
+  min-height: 0;
+}
+
+.scroll {
+  min-height: 0;
+  margin: 0 calc(var(--stella-space-2) * -1);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--stella-size-xl) * 1.75), 1fr));
+  gap: var(--stella-space-1);
+  padding: 0 var(--stella-space-2);
+}
+
+.empty {
+  flex: 1;
+}

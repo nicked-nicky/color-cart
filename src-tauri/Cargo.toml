@@ -1,0 +1,31 @@
+[package]
+name = "color-cart"
+version = "1.0.1"
+description = "Visual palette generator for digital artists and designers"
+authors = ["nicked-nicky"]
+license = "MIT"
+repository = "https://github.com/nicked-nicky/color-cart"
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "color_cart_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["image-png"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-store = "2"
+tauri-plugin-clipboard-manager = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

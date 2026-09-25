@@ -1,0 +1,29 @@
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stella-space-2);
+  margin: 0 0 var(--stella-space-6);
+}
+
+.canvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--stella-size-xl) * 4);
+  padding: var(--stella-space-3);
+  box-sizing: border-box;
+  border: var(--stella-border-width) solid var(--stella-g-border-0);
+  border-radius: var(--stella-radius-panel);
+  background: repeating-conic-gradient(var(--stella-g-surface-1) 0 25%, var(--stella-g-surface-0) 0 50%) 0 0 /
+    var(--stella-space-4) var(--stella-space-4);
+}
+
+.image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.caption {
+  margin: 0;
+}

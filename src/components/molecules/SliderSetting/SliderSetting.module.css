@@ -1,0 +1,3 @@
+.control {
+  width: calc(var(--stella-size-xl) * 4.5);
+}

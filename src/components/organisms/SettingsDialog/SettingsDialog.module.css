@@ -1,0 +1,16 @@
+.layout {
+  display: flex;
+  gap: var(--stella-space-2);
+  height: min(calc(var(--stella-size-xl) * 12), 70vh);
+  min-height: 0;
+}
+
+.nav {
+  width: calc(var(--stella-settings-nav-width) * 0.8);
+  flex-shrink: 0;
+}
+
+.content {
+  min-width: 0;
+  min-height: 0;
+}

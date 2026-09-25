@@ -6,14 +6,14 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import globals from 'globals'
 
 export default [
-  { ignores: ['dist', 'out', 'release', 'node_modules'] },
+  { ignores: ['dist', 'node_modules', 'src-tauri/target', 'src-tauri/gen'] },
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
-      globals: { ...globals.browser, ...globals.node }
+      globals: { ...globals.browser }
     },
     plugins: {
       '@typescript-eslint': tseslintPlugin,
@@ -23,9 +23,6 @@ export default [
     rules: {
       ...tseslintPlugin.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
-      // TypeScript already catches genuine undefined-variable errors, and
-      // unlike tsc, no-undef isn't type-aware — it false-positives on
-      // ambient type-only globals like the `Electron` namespace.
       'no-undef': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]

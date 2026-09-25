@@ -1,0 +1,42 @@
+.navigator {
+  position: absolute;
+  right: var(--stella-space-4);
+  bottom: var(--stella-space-4);
+  z-index: 2;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: var(--stella-border-width) solid var(--stella-g-border-1);
+  border-radius: var(--stella-radius-md);
+  background-color: var(--stella-g-surface-0);
+  background-image: var(--navigator-image);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  box-shadow: var(--stella-rim), var(--stella-shadow-lg);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+  transform-origin: bottom right;
+  transition:
+    opacity var(--stella-motion-slow) var(--stella-easing-out),
+    transform var(--stella-motion-slow) var(--stella-easing-spring);
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.dragging {
+  cursor: grabbing;
+}
+
+.viewport {
+  position: absolute;
+  box-sizing: border-box;
+  border: var(--stella-border-width) solid var(--stella-text-0);
+  border-radius: var(--stella-radius-md);
+  background-color: color-mix(in srgb, var(--stella-text-0) 15%, transparent);
+  pointer-events: none;
+}

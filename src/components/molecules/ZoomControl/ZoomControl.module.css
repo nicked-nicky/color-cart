@@ -1,0 +1,4 @@
+.level {
+  min-width: calc(var(--stella-size-xl) * 1.75);
+  font-variant-numeric: tabular-nums;
+}
