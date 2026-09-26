@@ -18,12 +18,12 @@ import {
 } from '@stella-componente/terra'
 import type { SourceCoordinates } from '@/types'
 import { cx } from '@/lib/cx'
-import { errorMessage } from '@/lib/errorMessage'
-import { imageFromFile, isDesktop, pickImage } from '@/platform'
+import { imageFromFile, isDesktop } from '@/platform'
 import { useImageStore } from '@/store/imageStore'
 import { usePaletteStore } from '@/store/paletteStore'
 import { useZoomPan } from '@/hooks/useZoomPan'
 import { useColorPicker } from '@/hooks/useColorPicker'
+import { useOpenImage } from '@/hooks/useOpenImage'
 import { ZoomControl } from '@/components/molecules/ZoomControl'
 import { Navigator } from '@/components/molecules/Navigator'
 import { Loupe } from '@/components/molecules/Loupe'
@@ -38,6 +38,7 @@ export function ImageViewport({ dropHover }: ImageViewportProps): JSX.Element {
   const setImage = useImageStore((state) => state.setImage)
   const addColor = usePaletteStore((state) => state.addColor)
   const notify = useNotifications()
+  const openImage = useOpenImage()
 
   const imgRef = useRef<HTMLImageElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -74,13 +75,6 @@ export function ImageViewport({ dropHover }: ImageViewportProps): JSX.Element {
     onPick: handlePick
   })
 
-  const handleOpen = (): void => {
-    pickImage().then(
-      (image) => image && setImage(image),
-      (error) => notify.error(errorMessage(error, "Couldn't open the image."))
-    )
-  }
-
   const handleImageMouseDown = (event: ReactMouseEvent<HTMLImageElement>): void => {
     if (handlePanMouseDown(event)) return
     handlePickMouseDown(event)
@@ -112,7 +106,7 @@ export function ImageViewport({ dropHover }: ImageViewportProps): JSX.Element {
   const cursorClass = isPanning ? styles.panning : loupeStyle ? styles.picking : styles.idle
 
   return (
-    <Island as="section" grade="default" className={styles.viewport} aria-label="Reference image">
+    <Island as="section" grade="global" className={styles.viewport} aria-label="Reference image">
       <div
         ref={stageRef}
         data-stella-component="image-viewport"
@@ -139,7 +133,7 @@ export function ImageViewport({ dropHover }: ImageViewportProps): JSX.Element {
                 onZoomIn={zoomIn}
                 onZoomOut={zoomOut}
                 onSelect={setZoomPercent}
-                parentGrade="default"
+                parentGrade="global"
               />
             </div>
             <Navigator
@@ -157,14 +151,14 @@ export function ImageViewport({ dropHover }: ImageViewportProps): JSX.Element {
             title="No reference image"
             description="Choose a picture or drop one here, then click and hold on it to pick colors."
           >
-            <ButtonIsland parentGrade="default">
+            <ButtonIsland parentGrade="global">
               <Button
                 leadingIcon={
                   <Icon size="sm">
                     <FolderOpen />
                   </Icon>
                 }
-                onClick={handleOpen}
+                onClick={openImage}
               >
                 Choose a picture
               </Button>

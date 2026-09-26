@@ -130,6 +130,10 @@ export function createWindowControls(): WindowControlsHandlers {
   }
 }
 
+export async function startWindowDrag(): Promise<void> {
+  if (isDesktop) await getCurrentWindow().startDragging()
+}
+
 export async function listenForMaximizeChange(
   onChange: (maximized: boolean) => void
 ): Promise<UnlistenFn> {

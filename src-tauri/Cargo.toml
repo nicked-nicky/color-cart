@@ -1,6 +1,6 @@
 [package]
 name = "color-cart"
-version = "1.0.1"
+version = "2.0.0"
 description = "Visual palette generator for digital artists and designers"
 authors = ["nicked-nicky"]
 license = "MIT"

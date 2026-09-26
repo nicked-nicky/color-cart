@@ -1,7 +1,5 @@
 .app {
-  height: 100vh;
-  padding: var(--stella-space-2);
-  box-sizing: border-box;
+  height: 100%;
   overflow: hidden;
 }
 

@@ -41,7 +41,7 @@ export function PaletteBasket(): JSX.Element {
   }
 
   return (
-    <Island as="aside" grade="default" padding="4" className={styles.basket} aria-label="Palette">
+    <Island as="aside" grade="global" padding="4" className={styles.basket} aria-label="Palette">
       <FlexContainer direction="column" gap="3" grow className={styles.content}>
         <FlexContainer align="center" justify="between">
           <Text variant="title-3" as="h2">
@@ -78,7 +78,7 @@ export function PaletteBasket(): JSX.Element {
         )}
 
         {colors.length > 0 && (
-          <ButtonIsland size="sm" parentGrade="default">
+          <ButtonIsland size="sm" parentGrade="global">
             <Button
               leadingIcon={
                 <Icon size="sm">

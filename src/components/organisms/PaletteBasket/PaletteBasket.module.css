@@ -1,7 +1,6 @@
 .basket {
   width: calc(var(--stella-size-xl) * 6.5);
   flex-shrink: 0;
-  height: 100%;
 }
 
 .content {

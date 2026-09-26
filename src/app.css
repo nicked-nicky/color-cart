@@ -5,10 +5,38 @@ body,
   margin: 0;
 }
 
+/* Overrides Terra's #root padding: the single outer inset for the whole app. */
+#root {
+  padding: 10px;
+  box-sizing: border-box;
+}
+
 body {
   overflow: hidden;
   background-color: var(--stella-surface-0);
   color: var(--stella-text-0);
   font-family: var(--stella-font-ui);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Terra sizes icon-only buttons in a horizontal ButtonIsland with an inline
+   `width: auto; aspect-ratio: 1` against a stretched height. WebKitGTK sizes
+   the island from content instead, so the buttons and their island come out
+   non-square. Pin the width to the island's inner height (size minus border). */
+button[class*='iconOnly'][style*='aspect-ratio'] {
+  --icon-button-size: var(--stella-size-md);
+  width: calc(var(--icon-button-size) - 2 * var(--stella-border-width)) !important;
+  flex-shrink: 0;
+}
+
+button[class*='iconOnly'][style*='aspect-ratio'][class*='size-xs'] {
+  --icon-button-size: var(--stella-size-xs);
+}
+
+button[class*='iconOnly'][style*='aspect-ratio'][class*='size-sm'] {
+  --icon-button-size: var(--stella-size-sm);
+}
+
+button[class*='iconOnly'][style*='aspect-ratio'][class*='size-lg'] {
+  --icon-button-size: var(--stella-size-lg);
 }

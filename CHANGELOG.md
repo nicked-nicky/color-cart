@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2026-09-27
 
 ### Changed
 - Migrated from Electron to **Tauri 2**. The Rust backend owns the file dialogs and only reads images the user picked or dropped, and only writes to the path chosen in the export dialog.
@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - JPEG and WebP exports are now actually encoded in the chosen format. Previously they were PNG data saved with a `.jpg` or `.webp` extension.
+- Blank window on Linux with the NVIDIA proprietary driver (WebKitGTK's DMA-BUF renderer is now disabled by default).
+- The whole title bar now drags the window, and double-clicking it maximizes or restores the window on Linux.
+- The close button no longer gets pushed out of the title bar, and icon-only buttons are square in WebKitGTK.
+- Missing bottom padding around the workspace; the app now has an even 10px inset.
+- The image viewport and palette panels now sit at the `global` grade, with their buttons at `default`.
 
 ## [1.0.1] - 2026-08-14
 
