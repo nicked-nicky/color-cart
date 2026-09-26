@@ -1,0 +1,20 @@
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stella-space-1);
+  margin-bottom: var(--stella-space-6);
+}
+
+.description {
+  margin: 0;
+}
+
+.footer {
+  display: flex;
+  margin-top: var(--stella-space-6);
+}

@@ -1,0 +1,17 @@
+.wrapper {
+  display: contents;
+}
+
+/* Terra's WindowChrome reserves a fixed 300px spacer plus a 200px-minimum tabs
+   region. We have no tabs, so let both empty regions absorb whatever width is
+   left (they are the drag area) instead of pushing the controls off-screen. */
+.chrome > div:empty {
+  --tabs-region-min-width: 0px;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}
+
+.chrome > * {
+  flex-shrink: 0;
+}

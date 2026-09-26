@@ -1,7 +1,5 @@
 node_modules
-out
 dist
-release
 .env
 .env.local
 .DS_Store
@@ -9,3 +7,6 @@ release
 npm-debug.log*
 .vscode/*
 !.vscode/extensions.json
+
+out/
+release/

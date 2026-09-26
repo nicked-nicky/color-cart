@@ -1,0 +1,61 @@
+.viewport {
+  flex: 1;
+  min-width: 0;
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.animated {
+  transition: transform var(--stella-motion-instant) var(--stella-easing-out);
+}
+
+.idle {
+  cursor: crosshair;
+}
+
+.picking {
+  cursor: none;
+}
+
+.panning {
+  cursor: grabbing;
+}
+
+.zoomDock {
+  position: absolute;
+  bottom: var(--stella-space-4);
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+}
+
+.dropOverlay {
+  position: absolute;
+  inset: var(--stella-space-2);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: var(--stella-border-width) dashed var(--stella-g-border-3);
+  border-radius: var(--stella-radius-panel);
+  background-color: color-mix(in srgb, var(--stella-g-surface-0) 85%, transparent);
+  pointer-events: none;
+  animation: var(--stella-appear-animation);
+}

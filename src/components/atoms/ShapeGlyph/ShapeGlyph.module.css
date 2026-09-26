@@ -1,0 +1,6 @@
+.glyph {
+  display: block;
+  width: var(--stella-icon-size-sm);
+  height: var(--stella-icon-size-sm);
+  fill: currentColor;
+}

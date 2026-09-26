@@ -1,0 +1,22 @@
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.group + .group {
+  margin-top: var(--stella-space-6);
+}
+
+.title {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.description {
+  margin: var(--stella-space-1) 0 0;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
