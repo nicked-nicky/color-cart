@@ -28,11 +28,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "nsis",
-      "dmg",
-      "appimage"
-    ],
+    "targets": ["nsis", "dmg", "appimage", "deb", "rpm"],
     "category": "GraphicsAndDesign",
     "shortDescription": "Visual palette generator for digital artists and designers",
     "icon": [
